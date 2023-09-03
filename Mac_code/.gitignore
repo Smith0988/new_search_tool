@@ -1,0 +1,6 @@
+.idea
+venv
+dist
+build
+main_api.spec
+api_test.spec

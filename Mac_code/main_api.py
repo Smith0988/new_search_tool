@@ -6,6 +6,9 @@ if len(sys.argv) != 3:
 else:
     arg1_value = sys.argv[1]
     arg2_value = sys.argv[2]
-    result = f"Kết quả: {arg1_value} và {arg2_value}"
-    utf8_result = result.encode('utf-8', errors='ignore').decode('utf-8', errors='ignore')
-    print(utf8_result)
+    result = arg1_value + arg2_value  + "Thành công rồi"
+    # Ghi kết quả vào tệp văn bản
+    with open("output.txt", "w", encoding="utf-8") as output_file:
+        output_file.write(result)
+
+    #print(f"Kết quả đã được ghi vào tệp output.txt")

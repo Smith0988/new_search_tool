@@ -4,11 +4,7 @@ from tkinter import font
 from update_link import *
 from write_to_world import *
 
-
-
-
 waiting_text = "please wait, under processing..."
-
 
 def search_main_article_link(english_link):
     vietnamese_link = find_vietnamese_link_1(english_link)
@@ -31,6 +27,14 @@ def update_new_link():
     get_new_link_vn(article_url_GCT)
     get_new_link_en(file_new_gct_vn)
     add_link_to_csv(file_new_gct_en, file_new_gct_vn)
+
+    get_new_link_vn(article_url_tdth)
+    get_new_link_en(file_new_gct_vn)
+    add_link_to_csv(file_new_gct_en, file_new_gct_vn)
+
+    get_new_link_vn(article_url_new)
+    get_new_link_en(file_new_gct_vn)
+    add_link_to_csv(file_new_gct_en, file_new_gct_vn)
     text = "Update Successful"
     return text
 
@@ -44,52 +48,6 @@ def Auto_Translate(url):
     english_text = "\n".join(english_artical)
 
     return english_text
-
-
-
-"""
-def perform_action():
-    # Xóa nội dung hiển thị kết quả
-    pattern = r"^(http:|https:).*\.html$"
-    selected_action = action_var.get()
-    user_input = input_text.get().strip()
-    if selected_action == "Please select action...":
-        messagebox.showwarning("Warning", "Please select one item on crop_down.")
-    elif selected_action == "Update Link":
-        update_text = update_new_link()
-        display_result(update_text)
-    elif not user_input:
-        messagebox.showwarning("Warning", "Please input search text.")
-    elif not re.match(pattern, user_input) and not (selected_action == "Search main article link"):
-        messagebox.showwarning("Warning", "Please input correct link.")
-    else:
-        # custom_font = font.Font(family="Arial", size=16)
-        custom_font = font.Font(size=13)
-        result_textbox.delete(1.0, tk.END)
-        result_textbox.configure(font=custom_font)
-        result_textbox.insert(tk.END, waiting_text)
-        # Gọi hàm thực hiện hành động sau một khoảng thời gian ngắn (ví dụ: 100ms)
-        root.after(200, execute_selected_action)
-
-
-def execute_selected_action():
-    selected_action = action_var.get()
-    user_input = input_text.get().strip()
-    if selected_action == "Search main article link":
-        result = search_main_link(user_input)
-        display_result(result)
-    elif selected_action == "Search related link":
-        result = search_related_link(user_input)
-        display_result(result)
-    elif selected_action == "Get article content":
-        result = create_docx_file(user_input)
-        display_result(result)
-    elif selected_action == "Auto_Translate":
-        result = Auto_Translate(user_input)
-        display_result(result)
-"""
-
-
 
 def text_execute(english, vietnam, in_text):
     count = []
