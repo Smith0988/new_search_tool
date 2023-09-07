@@ -182,10 +182,10 @@ def text_normalization_vn_f(vn_article):
             continue
         if 'Họ và tên' in text_vn or 'Ngày mất' in text_vn or 'Giới tính:' in text_vn or 'Tên Trung Quốc:' in text_vn:
             continue
-        if "Những người tham gia bức hại"  in text_vn or  "Tham gia bức hại" in text_vn or "Những cá nhân chịu trách" in text_vn or "Bản quyền © 2023" in text_vn or "(Hết)" in text_vn or "(Còn tiếp.)" in text_vn or "Bản tiếng" in text_vn or "Bản tiếng Hán" in text_vn or "Bài liên quan" in text_vn or "Thông tin liên hệ" in text_vn or "Thông tin liên lạc" in text_vn or "Các báo cáo liên quan" in text_vn or "Báo cáo liên quan" in text_vn or "Mọi bài viết, hình ảnh, hay nội dung" in text_vn or "Bài viết chỉ thể hiện quan điểm" in text_vn or "Mọi nội dung đăng trên trang" in text_vn or "danh sách những thủ phạm" in text_vn:
+        if "Danh tính và thông tin"  in text_vn or "Những người tham gia bức hại"  in text_vn or  "Tham gia bức hại" in text_vn or "Những cá nhân chịu trách" in text_vn or "Bản quyền © 2023" in text_vn or "(Hết)" in text_vn or "(Còn tiếp.)" in text_vn or "Bản tiếng" in text_vn or "Bản tiếng Hán" in text_vn or "Bài liên quan" in text_vn or "Thông tin liên hệ" in text_vn or "Thông tin liên lạc" in text_vn or "Các báo cáo liên quan" in text_vn or "Báo cáo liên quan" in text_vn or "Mọi bài viết, hình ảnh, hay nội dung" in text_vn or "Bài viết chỉ thể hiện quan điểm" in text_vn or "Mọi nội dung đăng trên trang" in text_vn or "danh sách những thủ phạm" in text_vn:
             break
 
-        if 'Những người tham gia bức hại'  in text_vn or 'Tham gia bức hại' in text_vn or  'Những cá nhân chịu trách' in text_vn or  'Bản quyền © 2023' in text_vn or'(Hết)' in text_vn or '(Còn tiếp.)' in text_vn or 'Bản tiếng' in text_vn or 'Bản tiếng Hán' in text_vn or 'Bài liên quan' in text_vn or 'Thông tin liên hệ' in text_vn or 'Thông tin liên lạc' in text_vn or 'Các báo cáo liên quan' in text_vn or 'Báo cáo liên quan' in text_vn or 'Mọi bài viết, hình ảnh, hay nội dung' in text_vn or 'Bài viết chỉ thể hiện quan điểm' in text_vn or 'Mọi nội dung đăng trên trang' in text_vn or 'danh sách những thủ phạm' in text_vn:
+        if 'Danh tính và thông tin'  in text_vn or 'Những người tham gia bức hại'  in text_vn or 'Tham gia bức hại' in text_vn or  'Những cá nhân chịu trách' in text_vn or  'Bản quyền © 2023' in text_vn or'(Hết)' in text_vn or '(Còn tiếp.)' in text_vn or 'Bản tiếng' in text_vn or 'Bản tiếng Hán' in text_vn or 'Bài liên quan' in text_vn or 'Thông tin liên hệ' in text_vn or 'Thông tin liên lạc' in text_vn or 'Các báo cáo liên quan' in text_vn or 'Báo cáo liên quan' in text_vn or 'Mọi bài viết, hình ảnh, hay nội dung' in text_vn or 'Bài viết chỉ thể hiện quan điểm' in text_vn or 'Mọi nội dung đăng trên trang' in text_vn or 'danh sách những thủ phạm' in text_vn:
             break
 
         if "[MINH HUỆ" in text_vn:
@@ -243,78 +243,52 @@ def tokenize_sentences_with_name_prefix(text):
 def paragraph_indentation(en_article, vn_article):
     new_en_list = []
     new_vn_list = []
-    print("truoc chuan hoa: ")
-    print(len(en_article))
-    print(len(vn_article))
-    index = max(len(en_article), len(vn_article)) - min(len(en_article), len(vn_article))
-    print(index)
     if len(en_article) > len(vn_article):
-        j = 0
+        index = len(en_article) - len(vn_article)
         for i in range(len(vn_article)):
-            en_text = en_article[i + j]
+            en_text = en_article[i]
             vn_text = vn_article[i]
             english_sentences = tokenize_sentences_with_name_prefix(en_text)
             vietnamese_sentences = tokenize_sentences_with_name_prefix(vn_text)
-            #english_sentences_2 = tokenize_sentences_with_name_prefix(en_article[i + j + 1])
-            if j == index and (len(vietnamese_sentences) != len(english_sentences)):
-                break
-            if j == index:
+            if len(vietnamese_sentences) == len(english_sentences):
                 new_en_list.append(en_text)
                 new_vn_list.append(vn_text)
-                continue
-            #if (len(vietnamese_sentences) != len(english_sentences)) and (
-                    #len(vietnamese_sentences) == len(english_sentences) + len(english_sentences_2)):
-            if (len(vietnamese_sentences) != len(english_sentences)):
-                # print("gia tri J la:  ", j)
-                # print("en_text:  ", en_text)
-                # print("vn_text:  ", vn_text)
-                # print("Độ dài đoạn vn thứ", i + j, len(vietnamese_sentences))
-                # print("Độ dài đoạn en thứ", i, len(english_sentences))
-                # print("Độ dài đoạn vn thứ", i + j+1, len(tokenize_sentences_with_name_prefix(vn_article[i + j+1])))
-                temp_list = en_text + " " + en_article[i + j + 1]
-                new_en_list.append(temp_list)
-                new_vn_list.append(vn_text)
-                j = j + 1
             else:
-                new_en_list.append(en_text)
-                new_vn_list.append(vn_text)
-
-    else:
-        j = 0
-        for i in range(len(en_article)):
+                break
+        for i in range(len(en_article) - 1, -1, -1):
             en_text = en_article[i]
-            vn_text = vn_article[i + j]
+            vn_text = vn_article[i-index]
             english_sentences = tokenize_sentences_with_name_prefix(en_text)
             vietnamese_sentences = tokenize_sentences_with_name_prefix(vn_text)
-            if j == index and (len(vietnamese_sentences) != len(english_sentences)):
-                break
-            if j == index:
+            if len(vietnamese_sentences) == len(english_sentences):
                 new_en_list.append(en_text)
                 new_vn_list.append(vn_text)
-                continue
-            #vietnamese_sentences_2 = tokenize_sentences_with_name_prefix(vn_article[i + j + 1])
-            #if (len(vietnamese_sentences) != len(english_sentences)) and (
-            #len(english_sentences) == len(vietnamese_sentences) + len(vietnamese_sentences_2)):
-
-            if (len(vietnamese_sentences) != len(english_sentences)):
-                # print("gia tri J la:  ", j)
-                # print("en_text:  ", en_text)
-                # print("vn_text:  ", vn_text)
-                # print("Độ dài đoạn vn thứ", i + j, len(vietnamese_sentences))
-                # print("Độ dài đoạn en thứ", i, len(english_sentences))
-                # print("Độ dài đoạn vn thứ", i + j+1, len(tokenize_sentences_with_name_prefix(vn_article[i + j+1])))
-                temp_list = vn_text + " " + vn_article[i + j + 1]
-                new_vn_list.append(temp_list)
-                new_en_list.append(en_text)
-                j = j + 1
             else:
+                break
+
+    else:
+        index = len(vn_article) - len(en_article)
+        for i in range(len(vn_article)):
+            en_text = en_article[i]
+            vn_text = vn_article[i]
+            english_sentences = tokenize_sentences_with_name_prefix(en_text)
+            vietnamese_sentences = tokenize_sentences_with_name_prefix(vn_text)
+            if len(vietnamese_sentences) == len(english_sentences):
                 new_en_list.append(en_text)
                 new_vn_list.append(vn_text)
-    print("Sau chuan hoa: ")
-    print(len(new_en_list))
-    print(len(new_vn_list))
+            else:
+                break
+        for i in range(len(vn_article) - 1, -1, -1):
+            en_text = en_article[i-index]
+            vn_text = vn_article[i]
+            english_sentences = tokenize_sentences_with_name_prefix(en_text)
+            vietnamese_sentences = tokenize_sentences_with_name_prefix(vn_text)
+            if len(vietnamese_sentences) == len(english_sentences):
+                new_en_list.append(en_text)
+                new_vn_list.append(vn_text)
+            else:
+                break
     return new_en_list, new_vn_list
-
 
 def write_process_add(lines_en, lines_vn):
     # print("write_process_add")
@@ -378,11 +352,8 @@ def write_to_csv():
         text_normalization_vn = text_normalization_vn_f(vn_article_content)
 
         if len(text_normalization_en) != len(text_normalization_vn):
-            #print(en_link_index)
-            #print(vn_link_index)
             write_not_use_link_to_csv(en_link_index, vn_link_index)
-            continue
-            #text_normalization_en, text_normalization_vn = paragraph_indentation(text_normalization_en
+            text_normalization_en, text_normalization_vn = paragraph_indentation(text_normalization_en,text_normalization_vn)
 
         write_use_link_to_csv(en_link_index, vn_link_index)
         if "Additional Persecution News" in article_title:
