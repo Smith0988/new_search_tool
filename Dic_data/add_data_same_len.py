@@ -182,7 +182,7 @@ def text_normalization_vn_f(vn_article):
             continue
         if 'Họ và tên' in text_vn or 'Ngày mất' in text_vn or 'Giới tính:' in text_vn or 'Tên Trung Quốc:' in text_vn:
             continue
-        if "Danh tính và thông tin"  in text_vn or "Những người tham gia bức hại"  in text_vn or  "Tham gia bức hại" in text_vn or "Những cá nhân chịu trách" in text_vn or "Bản quyền © 2023" in text_vn or "(Hết)" in text_vn or "(Còn tiếp.)" in text_vn or "Bản tiếng" in text_vn or "Bản tiếng Hán" in text_vn or "Bài liên quan" in text_vn or "Thông tin liên hệ" in text_vn or "Thông tin liên lạc" in text_vn or "Các báo cáo liên quan" in text_vn or "Báo cáo liên quan" in text_vn or "Mọi bài viết, hình ảnh, hay nội dung" in text_vn or "Bài viết chỉ thể hiện quan điểm" in text_vn or "Mọi nội dung đăng trên trang" in text_vn or "danh sách những thủ phạm" in text_vn:
+        if  "Danh tính và thông tin"  in text_vn or "Những người tham gia bức hại"  in text_vn or  "Tham gia bức hại" in text_vn or "Những cá nhân chịu trách" in text_vn or "Bản quyền © 2023" in text_vn or "(Hết)" in text_vn or "(Còn tiếp.)" in text_vn or "Bản tiếng" in text_vn or "Bản tiếng Hán" in text_vn or "Bài liên quan" in text_vn or "Thông tin liên hệ" in text_vn or "Thông tin liên lạc" in text_vn or "Các báo cáo liên quan" in text_vn or "Báo cáo liên quan" in text_vn or "Mọi bài viết, hình ảnh, hay nội dung" in text_vn or "Bài viết chỉ thể hiện quan điểm" in text_vn or "Mọi nội dung đăng trên trang" in text_vn or "danh sách những thủ phạm" in text_vn:
             break
 
         if 'Danh tính và thông tin'  in text_vn or 'Những người tham gia bức hại'  in text_vn or 'Tham gia bức hại' in text_vn or  'Những cá nhân chịu trách' in text_vn or  'Bản quyền © 2023' in text_vn or'(Hết)' in text_vn or '(Còn tiếp.)' in text_vn or 'Bản tiếng' in text_vn or 'Bản tiếng Hán' in text_vn or 'Bài liên quan' in text_vn or 'Thông tin liên hệ' in text_vn or 'Thông tin liên lạc' in text_vn or 'Các báo cáo liên quan' in text_vn or 'Báo cáo liên quan' in text_vn or 'Mọi bài viết, hình ảnh, hay nội dung' in text_vn or 'Bài viết chỉ thể hiện quan điểm' in text_vn or 'Mọi nội dung đăng trên trang' in text_vn or 'danh sách những thủ phạm' in text_vn:
@@ -204,10 +204,10 @@ def text_normalization_en_f(en_article):
     new_en_list = []
     for i in range(len(lines_en)):
         text_en = lines_en[i]
-        if 'Participants in the persecution'  in text_en or 'Participant in the persecution'  in text_en or  'Key Responsible Personnel' in text_en or  'Related article' in text_en or 'Related Article' in text_en or  'Perpetrators involve' in text_en or 'Related Report' in text_en or 'Related report' in text_en or 'Perpetrators’ contact information' in text_en or 'list of the perpetrators' in text_en:
+        if 'Parties involved' in text_en or  'Participants in the persecution'  in text_en or 'Participant in the persecution'  in text_en or  'Key Responsible Personnel' in text_en or  'Related article' in text_en or 'Related Article' in text_en or  'Perpetrators involve' in text_en or 'Related Report' in text_en or 'Related report' in text_en or 'Perpetrators’ contact information' in text_en or 'list of the perpetrators' in text_en:
             break
 
-        if "Participants in the persecution"  in text_en or  "Participant in the persecution"  in text_en or "Key Responsible Personnel" in text_en or  "Related article" in text_en or "Related Article" in text_en or   "Perpetrators involve" in text_en or  "Related Report" in text_en or "Perpetrators’ contact information" in text_en or "list of the perpetrators" in text_en:
+        if "Parties involved" in text_en or  "Participants in the persecution"  in text_en or  "Participant in the persecution"  in text_en or "Key Responsible Personnel" in text_en or  "Related article" in text_en or "Related Article" in text_en or   "Perpetrators involve" in text_en or  "Related Report" in text_en or "Perpetrators’ contact information" in text_en or "list of the perpetrators" in text_en:
             break
 
         if "Chinese Name" in text_en or "English Name" in text_en:
@@ -217,6 +217,11 @@ def text_normalization_en_f(en_article):
 
         if "(Minghui.org)" in text_en:
             text_en = re.sub(r'\(Minghui.org\)', '', text_en)
+
+        if "(Clearwisdom.net)" in text_en:
+            text_en = re.sub(r'\(Clearwisdom.net\)', '', text_en)
+
+
         if text_en.strip():
             new_en_list.append(text_en)
 
@@ -255,6 +260,8 @@ def paragraph_indentation(en_article, vn_article):
                 new_vn_list.append(vn_text)
             else:
                 break
+
+        """
         for i in range(len(en_article) - 1, -1, -1):
             en_text = en_article[i]
             vn_text = vn_article[i-index]
@@ -265,10 +272,12 @@ def paragraph_indentation(en_article, vn_article):
                 new_vn_list.append(vn_text)
             else:
                 break
+                
+        """
 
     else:
         index = len(vn_article) - len(en_article)
-        for i in range(len(vn_article)):
+        for i in range(len(en_article)):
             en_text = en_article[i]
             vn_text = vn_article[i]
             english_sentences = tokenize_sentences_with_name_prefix(en_text)
@@ -278,6 +287,8 @@ def paragraph_indentation(en_article, vn_article):
                 new_vn_list.append(vn_text)
             else:
                 break
+
+        """        
         for i in range(len(vn_article) - 1, -1, -1):
             en_text = en_article[i-index]
             vn_text = vn_article[i]
@@ -288,6 +299,8 @@ def paragraph_indentation(en_article, vn_article):
                 new_vn_list.append(vn_text)
             else:
                 break
+        """
+
     return new_en_list, new_vn_list
 
 def write_process_add(lines_en, lines_vn):

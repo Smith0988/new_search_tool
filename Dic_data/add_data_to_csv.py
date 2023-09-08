@@ -200,6 +200,9 @@ def text_normalization_en_f(en_article):
 
         if "(Minghui.org)" in text_en:
             text_en = re.sub(r'\(Minghui.org\)', '', text_en)
+        if "(Clearwisdom.net)" in text_en:
+            text_en = re.sub(r'\(Clearwisdom.net\)', '', text_en)
+
         if text_en.strip():
             new_en_list.append(text_en)
 
