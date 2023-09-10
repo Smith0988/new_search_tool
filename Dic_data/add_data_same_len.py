@@ -1,8 +1,9 @@
 import csv
-import pandas as pd
 import nltk
 import requests
 from bs4 import BeautifulSoup
+import pandas as pd
+import spacy
 import re
 
 nltk.download('punkt')  # Download data for sentence tokenizer
@@ -96,6 +97,8 @@ def get_en_article_content(url):
         return []
 
 
+
+
 def get_en_article_title(url):
     try:
         # Tải nội dung của trang web
@@ -114,11 +117,38 @@ def get_en_article_title(url):
                 article_title = article_title_tag.text.strip()
                 return article_title
             else:
-                return ""
+                return "Can not found title Eng"
         else:
-            return ""
+            return "Web not respond"
     except Exception as e:
         return ""
+
+def get_vn_article_title(url):
+    try:
+        # kiem tra
+        if not url.startswith("http://") and not url.startswith("https://"):
+            url = "https:" + url  # Thêm schema "https:" nếu cần
+        # Tải nội dung của trang web
+        response = requests.get(url)
+
+        # Kiểm tra nếu yêu cầu thành công (status code 200)
+        if response.status_code == 200:
+            # Sử dụng BeautifulSoup để phân tích cú pháp trang web
+            soup = BeautifulSoup(response.content, 'html.parser')
+
+            # Tìm thẻ div có class là 'article-title'
+            article_title_tag = soup.find('h1', class_='articleTitle cABlue')
+
+            # Kiểm tra nếu tồn tại thẻ và lấy nội dung text của tiêu đề
+            if article_title_tag:
+                article_title = article_title_tag.text.strip()
+                return article_title
+            else:
+                return "Can not find Vietnamese Title"
+        else:
+            return "Can not find Vietnamese Title"
+    except Exception as e:
+        return "Can not find Vietnamese Link"
 
 
 def get_vn_article_content(url):
@@ -375,47 +405,235 @@ def write_to_csv():
             write_process(text_normalization_en, text_normalization_vn)
     write_number_to_file(index_file_name, index + a)
 
-
-write_to_csv()
-
-# Khai báo URL
-en_url = 'https://en.minghui.org/html/articles/2023/7/6/210192.html'
-vn_url = 'https://vn.minghui.org/news/250634-tin-tuc-bo-sung-ve-cuoc-buc-hai-tai-trung-quoc-ngay-6-thang-6-nam-2023.html'
-
-# Khai báo file name
-file_name_en = 'article_en.txt'
-file_name_vn = 'article_vn.txt'
-
-# bắt đầu ghi
-
-
-# Lấy Nội dụng web
-# content_en = get_en_article_content(en_url)
-# content_vn = get_vn_article_content(vn_url)
-
-# en_paragraphs = content_en.split('\n\n')
-# vn_paragraphs = content_vn.split('\n\n')
-
-# print (en_paragraphs)
-
-# write
-# write_to_text(file_name_en,content_en)
-# write_to_text(file_name_vn, content_vn)
+def get_en_line(url):
+    # Gửi yêu cầu HTTP để lấy nội dung trang web
+    if "Can not" in url:
+        return "Can not get article line from web"
+    response = requests.get(url)
+    if response.status_code == 200:
+        # Sử dụng BeautifulSoup để phân tích cú pháp trang web
+        soup = BeautifulSoup(response.content, 'html.parser')
+        article_title_line = " "
+        article_title_tag_byline = soup.find('div', class_='article-byline')
+        if not article_title_tag_byline:
+            article_title_tag_byline = soup.find('div', class_='dateShare cf')
+        if article_title_tag_byline:
+            article_title_line = article_title_tag_byline.text.strip()
+            parts = article_title_line.split("|")
+            if len(parts) > 1:
+                article_title_line = parts[1].strip()
+        if article_title_line:
+            return article_title_line
+        else:
+            return "Can not find line content"
+    else:
+        return "Can not connect website"
 
 
-# Ghi ra file text
-# write_to_text(file_name_en, content_en)
-# write_to_text(file_name_vn, content_vn)
-# write_to_csv(content_en, content_vn)
+def get_vn_line(url):
+    if not url.startswith("http://") and not url.startswith("https://"):
+        url = "https:" + url  # Thêm schema "https:" nếu cần
+    response = requests.get(url)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        article_body = soup.find('div', class_='articleBody')
+        if article_body:
+            # Tìm các phần tử con của 'articleBody'
+            paragraphs = article_body.find_all('p')
+            line = ""
+            # Loại bỏ nội dung của đoạn đầu tiên nếu không chứa ký tự "["
+            if "[" not in paragraphs[0].get_text(strip=True):
+                line = paragraphs[0].get_text().strip()
+                return line
+            else:
+                return "Check html structure"
+        else:
+            return "Can not get artical content"
+    else:
+        return "can not connect to website"
+
+def write_line():
+    # Khai bao
+    file_name = 'link_eng_vn_gct.csv'
+    index_file_name = 'row_number.txt'
+
+    # Lay gia tri
+    links_en, links_vn = get_links_from_csv(file_name)
+    index = read_number_from_file(index_file_name)
+    a = 10000
+
+    for i in range(index, index + a):
+        data = []
+        write_number_to_file(index_file_name, i + 1)
+        line_en = get_en_line(links_en[i])
+        line_vn = get_vn_line(links_vn[i])
+        #print(links_en[i])
+        #print(links_vn[i])
+        # Thêm dữ liệu vào danh sách data
+        data.append([line_en, line_vn])
+
+        # Tạo DataFrame từ danh sách data và chỉ định index là None
+        df = pd.DataFrame(data, columns=['English_Link', 'Vietnamese_Link'], index=None)
+
+        # Ghi vào file line_en_vn.csv mà không ghi đè dữ liệu
+        df.to_csv("line_en_vn.csv", mode='a', header=False, index=False)
+
+    write_number_to_file(index_file_name, index + a)
+
+def get_vn_addition(url):
+    if not url.startswith("http://") and not url.startswith("https://"):
+        url = "https:" + url  # Thêm schema "https:" nếu cần
+    response = requests.get(url)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        article_contents = soup.find('div', class_='articleBody')
+        if article_contents:
+            # Tìm tất cả các đoạn văn bản có chứa ký tự số ở đầu đoạn (ví dụ: 1., 2., 3.)
+            paragraphs = article_contents.find_all(['p', 'h3', 'div'])
+            filtered_paragraphs = [p.text.strip() for p in paragraphs if re.match(r'^\d+\.', p.text.strip())]
+        if len(filtered_paragraphs) > 0:
+            filtered_paragraphs = filtered_paragraphs[1:]  # Lấy danh sách từ phần tử thứ hai trở đi
+            return filtered_paragraphs
+        else:
+            return "Can not found infor in article"
+    else:
+        return "Can not connect to wwebsite"
+
+def get_en_addition(url):
+    # Gửi yêu cầu HTTP để lấy nội dung trang web
+    if "Can not" in url:
+        return "Can not get article line from web"
+    response = requests.get(url)
+    if response.status_code == 200:
+        article_contents = []
+        soup = BeautifulSoup(response.content, 'html.parser')
+        article_contents_1 = soup.find('div', class_='article-body-content')
+        article_contents_2 = soup.find('div', class_='articleZhengwen geo cBBlack')
+        article_contents_3 = soup.find('div', class_='articleZhengwen geo')
+        if article_contents_1:
+            article_contents = article_contents_1
+        if article_contents_2:
+            article_contents = article_contents_2
+        if article_contents_3:
+            article_contents = article_contents_3
+        if article_contents:
+            # Tìm tất cả các đoạn văn bản có chứa ký tự số ở đầu đoạn (ví dụ: 1., 2., 3.)
+            paragraphs = article_contents.find_all(['p', 'h3', 'div'])
+            filtered_paragraphs = [p.text.strip() for p in paragraphs if re.match(r'^\d+\.', p.text.strip())]
+        if len(filtered_paragraphs) > 0:
+            filtered_paragraphs = filtered_paragraphs[1:]  # Lấy danh sách từ phần tử thứ hai trở đi
+
+        if filtered_paragraphs:
+            return filtered_paragraphs
+        else:
+            return "Can not found infor in article"
+    else:
+            return "Can not connect to wwebsite"
+
+def extract_proper_nouns_vn(text):
+
+    # Loại bỏ các ký số dạng "1." hoặc "2." hoặc "3." khỏi văn bản
+    text_without_numbers = re.sub(r'\d+\.\s*', '', text)
+
+    # Tách đoạn văn bản đã loại bỏ ký số thành các phần tử
+    pattern = r'\[|,|;|\]|và'
+    elements = re.split(pattern, text_without_numbers)
+    for i in range(len(elements)):
+        elements[i] = elements[i].replace("Hồ sơ", "").replace("Vụ án", "").strip()
+    # Loại bỏ khoảng trắng thừa ở đầu và cuối mỗi phần tử (nếu có)
+    elements = [element.strip() for element in elements if element.strip()]
+
+    # Danh sách các từ đặc biệt cần giữ lại
+    special_words = ["ông", "bà", "anh", "cô", "chị", "thành", "phố", "huyện", "quận", "khu", "tỉnh", "thị trấn",
+                     "thị xã"]
+
+    # Duyệt qua từng phần tử và xử lý
+    result = []
+    for element in elements:
+        # Tách thành các từ
+        words = element.split()
+        # Lưu trữ các từ thỏa mãn điều kiện
+        valid_words = []
+        for word in words:
+            # Kiểm tra xem từ có chữ cái đầu tiên viết hoa hoặc thuộc danh sách từ đặc biệt không
+            if word[0].isupper() or word.lower() in special_words:
+                valid_words.append(word)
+        # Tạo lại đoạn văn bản từ các từ thỏa mãn điều kiện
+        valid_element = ' '.join(valid_words)
+        if valid_element:
+            result.append(valid_element)
+    return result
+
+def extract_proper_nouns_en(text):
+    # Tải mô hình ngôn ngữ tiếng Anh
+    nlp = spacy.load("en_core_web_sm")
+
+    # Sử dụng spaCy để phân tích văn bản
+    doc = nlp(text)
+
+    # Tách các tên riêng theo địa danh và tên người
+    proper_nouns = []
+    current_proper_noun = ""
+    for token in doc:
+        if token.ent_type_ == "GPE" or token.ent_type_ == "PERSON":
+            current_proper_noun += token.text + " "
+        elif token.text in ["Mr.", "Ms."]:
+            current_proper_noun += token.text + " "
+        else:
+            if current_proper_noun:
+                # Kiểm tra và loại bỏ các từ như "Face," "Trial," và "Sent"
+                current_proper_noun = re.sub(r'\b(?:Face|Strike|Hunger|Put|Trial|Sent|Sentenced|Arrested|Detained|Harassed|Submitted|Framed|Home|Ransacked)\b', '', current_proper_noun)
+                proper_nouns.append(current_proper_noun.strip())
+                current_proper_noun = ""
+
+    # Kiểm tra xem còn tên riêng cuối cùng không được thêm vào danh sách
+    if current_proper_noun:
+        # Kiểm tra và loại bỏ các từ như "Face," "Trial," và "Sent"
+        current_proper_noun = re.sub(r'\b(?:Face|Strike|Hunger|Put|Trial|Sent|Sentenced|Arrested|Detained|Harassed|Submitted|Framed|Home|Ransacked)\b', '', current_proper_noun)
+        proper_nouns.append(current_proper_noun.strip())
+
+    return proper_nouns
+
+def write_name_to_csv(list1, list2):
+    # Tạo DataFrame từ hai danh sách
+    for i in range(len(list1)):
+        df = pd.DataFrame({'English': list1[i], 'Vietnamese': list2[i]})
+        # Ghi vào file CSV, mode='a' để ghi tiếp dữ liệu nếu file đã tồn tại, encoding='utf-8' để hỗ trợ ký tự tiếng Việt
+        df.to_csv('name_dic.csv', mode='a', header=False, index=False, encoding='utf-8')
 
 
-"""
-file_path = 'link_eng_vn_gct.csv'
-links_en, links_vn = get_links_from_csv(file_path)
 
-# Lấy danh sách link tiếng Anh
-print(links_en)
+def write_addition():
+    # Khai bao
+    file_name = 'addition_report.csv'
+    index_file_name = 'row_number.txt'
 
-# Lấy danh sách link tiếng Việt
-print(links_vn)
-"""
+    # Lay gia tri
+    links_en, links_vn = get_links_from_csv(file_name)
+    index = read_number_from_file(index_file_name)
+    a = 10
+    for i in range(index, index + a):
+        write_number_to_file(index_file_name, i + 1)
+        text_en = get_en_addition(links_en[i])
+        text_vn = get_vn_addition(links_vn[i])
+        print(links_en[i])
+        print(links_vn[i])
+        if len(text_en) == len(text_vn):
+            for j in range(len(text_en)):
+                list_en = extract_proper_nouns_en(text_en[j])
+                list_en_1 = [item for item in list_en if item != ""]
+                list_vn =extract_proper_nouns_vn(text_vn[j])
+                list_vn_1 = [item for item in list_vn if len(item.split()) > 1]
+                print(list_en_1)
+                print(list_vn_1)
+                if len(list_en_1) == len(list_vn_1):
+                    df = pd.DataFrame({'English': list_en_1, 'Vietnamese': list_vn_1}, index=None)
+                    # Ghi vào file 'dic_eng_vn_data.csv'
+                    df.to_csv('dic_name_data.csv', mode='a', header=False, index=False)
+
+
+    write_number_to_file(index_file_name, index + a)
+
+#write_to_csv()
+#write_line()
+write_addition()
