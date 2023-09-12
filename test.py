@@ -3,8 +3,7 @@ import re
 
 def extract_proper_nouns(text):
     # Tải mô hình ngôn ngữ tiếng Anh
-    nlp = spacy.load("en_core_web_sm")
-
+    nlp = spacy.load("zh_core_web_sm")
     # Sử dụng spaCy để phân tích văn bản
     doc = nlp(text)
 
@@ -32,7 +31,7 @@ def extract_proper_nouns(text):
     return proper_nouns
 
 # Sử dụng hàm để tách các tên riêng từ văn bản
-text_to_tokenize = "4. [Xianning City, Hubei Province] Ms. Yang Dongxiang and Mr. Zhou Hongda Face Indictment"
+text_to_tokenize = "3. [Chifeng City, Inner Mongolia] Wang Huayi Faces Trial"
 result = extract_proper_nouns(text_to_tokenize)
 
 # In danh sách các tên riêng

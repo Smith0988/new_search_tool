@@ -1,6 +1,6 @@
 import re
 
-text = "4. [Thành phố Hàm Ninh, tỉnh Hồ Bắc] Bà Dương Đông Hương và ông Chu Hồng Đạt bị truy tố"
+text = "21. [Thành phố Bao Đầu, Nội Mông] Hồ sơ vụ án của ba học viên được trình lên viện kiểm sát"
 
 # Loại bỏ các ký số dạng "1." hoặc "2." hoặc "3." khỏi văn bản
 text_without_numbers = re.sub(r'\d+\.\s*', '', text)
@@ -11,8 +11,6 @@ elements = re.split(pattern, text_without_numbers)
 
 # Loại bỏ khoảng trắng thừa ở đầu và cuối mỗi phần tử (nếu có)
 elements = [element.strip() for element in elements if element.strip()]
-for i in range(len(elements)):
-    elements[i] = elements[i].replace("Hồ sơ", "").replace("Vụ án", "").strip()
 
 # Danh sách các từ đặc biệt cần giữ lại
 special_words = ["ông", "bà", "anh", "cô", "chị", "thành", "phố", "huyện", "quận", "khu", "tỉnh", "thị trấn", "thị xã"]

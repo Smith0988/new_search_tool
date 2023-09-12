@@ -97,8 +97,6 @@ def get_en_article_content(url):
         return []
 
 
-
-
 def get_en_article_title(url):
     try:
         # Tải nội dung của trang web
@@ -349,7 +347,7 @@ def write_process_add(lines_en, lines_vn):
             # Tạo DataFrame từ danh sách câu tiếng Anh và tiếng Việt đã tách
             df = pd.DataFrame({'English': english_sentences, 'Vietnamese': vietnamese_sentences}, index=None)
             # Ghi vào file 'dic_eng_vn_data.csv'
-            df.to_csv('dic_eng_vn_data.csv', mode='a', header=False, index=False)
+            df.to_csv('dic_eng_vn_data_new.csv', mode='a', header=False, index=False)
 
 
 def write_process(lines_en, lines_vn):
@@ -365,13 +363,12 @@ def write_process(lines_en, lines_vn):
             # Tạo DataFrame từ danh sách câu tiếng Anh và tiếng Việt đã tách
             df = pd.DataFrame({'English': english_sentences, 'Vietnamese': vietnamese_sentences}, index=None)
             # Ghi vào file 'dic_eng_vn_data.csv'
-            df.to_csv('dic_eng_vn_data.csv', mode='a', header=False, index=False)
-
+            df.to_csv('dic_eng_vn_data_new.csv', mode='a', header=False, index=False)
 
 def write_to_csv():
     # Khai bao
-    file_name = 'link_eng_vn_gct.csv'
-    index_file_name = 'row_number.txt'
+    file_name = 'link_eng_vn_gct_new.csv'
+    index_file_name = 'row_number_new.txt'
 
     # Lay gia tri
     links_en, links_vn = get_links_from_csv(file_name)
@@ -454,8 +451,8 @@ def get_vn_line(url):
 
 def write_line():
     # Khai bao
-    file_name = 'link_eng_vn_gct.csv'
-    index_file_name = 'row_number.txt'
+    file_name = 'link_eng_vn_gct_new.csv'
+    index_file_name = 'row_number_new.txt'
 
     # Lay gia tri
     links_en, links_vn = get_links_from_csv(file_name)
@@ -539,13 +536,12 @@ def extract_proper_nouns_vn(text):
     pattern = r'\[|,|;|\]|và'
     elements = re.split(pattern, text_without_numbers)
     for i in range(len(elements)):
-        elements[i] = elements[i].replace("Hồ sơ", "").replace("Vụ án", "").strip()
+        elements[i] = elements[i].replace("Hồ sơ", "Remove").replace("Vụ án", "Remove").replace("Vụ án", "Remove").strip()
     # Loại bỏ khoảng trắng thừa ở đầu và cuối mỗi phần tử (nếu có)
     elements = [element.strip() for element in elements if element.strip()]
 
     # Danh sách các từ đặc biệt cần giữ lại
-    special_words = ["ông", "bà", "anh", "cô", "chị", "thành", "phố", "huyện", "quận", "khu", "tỉnh", "thị trấn",
-                     "thị xã"]
+    special_words = ["ông", "bà", "anh", "cô", "chị", "thành", "phố", "huyện", "quận", "khu", "tỉnh", "thị trấn", "thị xã"]
 
     # Duyệt qua từng phần tử và xử lý
     result = []
@@ -562,78 +558,96 @@ def extract_proper_nouns_vn(text):
         valid_element = ' '.join(valid_words)
         if valid_element:
             result.append(valid_element)
-    return result
+        result = [item for item in result if len(item.split()) > 1]
 
+
+    return result
 def extract_proper_nouns_en(text):
     # Tải mô hình ngôn ngữ tiếng Anh
-    nlp = spacy.load("en_core_web_sm")
+    # Loại bỏ các ký số dạng "1." hoặc "2." hoặc "3." khỏi văn bản
+    text_without_numbers = re.sub(r'\d+\.\s*', '', text)
 
-    # Sử dụng spaCy để phân tích văn bản
-    doc = nlp(text)
+    # Tách đoạn văn bản đã loại bỏ ký số thành các phần tử
+    pattern = r'\[|,|;|\]| and '
+    elements = re.split(pattern, text_without_numbers)
 
-    # Tách các tên riêng theo địa danh và tên người
-    proper_nouns = []
-    current_proper_noun = ""
-    for token in doc:
-        if token.ent_type_ == "GPE" or token.ent_type_ == "PERSON":
-            current_proper_noun += token.text + " "
-        elif token.text in ["Mr.", "Ms."]:
-            current_proper_noun += token.text + " "
-        else:
-            if current_proper_noun:
-                # Kiểm tra và loại bỏ các từ như "Face," "Trial," và "Sent"
-                current_proper_noun = re.sub(r'\b(?:Face|Strike|Hunger|Put|Trial|Sent|Sentenced|Arrested|Detained|Harassed|Submitted|Framed|Home|Ransacked)\b', '', current_proper_noun)
-                proper_nouns.append(current_proper_noun.strip())
-                current_proper_noun = ""
-
-    # Kiểm tra xem còn tên riêng cuối cùng không được thêm vào danh sách
-    if current_proper_noun:
-        # Kiểm tra và loại bỏ các từ như "Face," "Trial," và "Sent"
-        current_proper_noun = re.sub(r'\b(?:Face|Strike|Hunger|Put|Trial|Sent|Sentenced|Arrested|Detained|Harassed|Submitted|Framed|Home|Ransacked)\b', '', current_proper_noun)
-        proper_nouns.append(current_proper_noun.strip())
-
-    return proper_nouns
-
-def write_name_to_csv(list1, list2):
-    # Tạo DataFrame từ hai danh sách
-    for i in range(len(list1)):
-        df = pd.DataFrame({'English': list1[i], 'Vietnamese': list2[i]})
-        # Ghi vào file CSV, mode='a' để ghi tiếp dữ liệu nếu file đã tồn tại, encoding='utf-8' để hỗ trợ ký tự tiếng Việt
-        df.to_csv('name_dic.csv', mode='a', header=False, index=False, encoding='utf-8')
+    # Loại bỏ khoảng trắng thừa ở đầu và cuối mỗi phần tử (nếu có)
+    elements = [element.strip() for element in elements if element.strip()]
+    words_to_remove = ["Whereabouts Unknown","Her Job Contract Terminated","Four Months in","Family", "Members" ,"Prison","Court", "Others", "Face", "Trial", "Sent", "Sentenced", "Arrested", "Detained", "Harassed", "Submitted", "Framed", "Home", "Ransacked"]
+    # Duyệt qua từng phần tử trong danh sách
+    for i in range(len(elements)):
+        # Loại bỏ các từ khỏi phần tử hiện tại
+        for word in words_to_remove:
+            elements[i] = elements[i].replace(word, "")
+    # Loại bỏ các phần tử trống khỏi danh sách
+    elements = [element for element in elements if element.strip() != ""]
 
 
+    return elements
 
 def write_addition():
     # Khai bao
-    file_name = 'addition_report.csv'
+    file_name = 'link_eng_vn_gct_new.csv'
+    index_file_name = 'row_number_new.txt'
+
+    # Lay gia tri
+    links_en, links_vn = get_links_from_csv(file_name)
+    index = read_number_from_file(index_file_name)
+    a = 1000
+    for i in range(index, index + a):
+        write_number_to_file(index_file_name, i + 1)
+        text_en = get_en_addition(links_en[i])
+        text_vn = get_vn_addition(links_vn[i])
+        article_title = get_en_article_title(links_en[i])
+        if "Additional Persecution News" in article_title:
+            if len(text_en) == len(text_vn):
+                for j in range(len(text_en)):
+                    list_en = extract_proper_nouns_en(text_en[j])
+                    list_vn =extract_proper_nouns_vn(text_vn[j])
+                    if len(list_en) > len(list_vn):
+                        for h in range(len(list_vn)):
+                            data = {'English': list_en[h], 'Vietnamese': list_vn[h]}
+                            # Tạo DataFrame từ danh sách data
+                            df = pd.DataFrame([data])  # Đặt dữ liệu trong dấu [ ] để tạo DataFrame từ danh sách
+                            df.to_csv('new_addition.csv', mode='a', header=False, index=False)
+                    else:
+                        for h in range(len(list_en)):
+                            data = {'English': list_en[h], 'Vietnamese': list_vn[h]}
+                            # Tạo DataFrame từ danh sách data
+                            df = pd.DataFrame([data])  # Đặt dữ liệu trong dấu [ ] để tạo DataFrame từ danh sách
+                            df.to_csv('new_addition.csv', mode='a', header=False, index=False)
+    write_number_to_file(index_file_name, index + a)
+
+def write_title():
+    # Khai bao
+    file_name = 'link_eng_vn_gct.csv'
     index_file_name = 'row_number.txt'
 
     # Lay gia tri
     links_en, links_vn = get_links_from_csv(file_name)
     index = read_number_from_file(index_file_name)
-    a = 10
+    a = 10000
     for i in range(index, index + a):
+        data = []
         write_number_to_file(index_file_name, i + 1)
-        text_en = get_en_addition(links_en[i])
-        text_vn = get_vn_addition(links_vn[i])
+        line_en = get_en_article_title(links_en[i])
+        line_vn = get_vn_article_title(links_vn[i])
         print(links_en[i])
         print(links_vn[i])
-        if len(text_en) == len(text_vn):
-            for j in range(len(text_en)):
-                list_en = extract_proper_nouns_en(text_en[j])
-                list_en_1 = [item for item in list_en if item != ""]
-                list_vn =extract_proper_nouns_vn(text_vn[j])
-                list_vn_1 = [item for item in list_vn if len(item.split()) > 1]
-                print(list_en_1)
-                print(list_vn_1)
-                if len(list_en_1) == len(list_vn_1):
-                    df = pd.DataFrame({'English': list_en_1, 'Vietnamese': list_vn_1}, index=None)
-                    # Ghi vào file 'dic_eng_vn_data.csv'
-                    df.to_csv('dic_name_data.csv', mode='a', header=False, index=False)
+        # Thêm dữ liệu vào danh sách data
+        data.append([line_en, line_vn])
 
+        # Tạo DataFrame từ danh sách data và chỉ định index là None
+        df = pd.DataFrame(data, columns=['English_Link', 'Vietnamese_Link'], index=None)
+
+        # Ghi vào file line_en_vn.csv mà không ghi đè dữ liệu
+        df.to_csv("title_en_vn.csv", mode='a', header=False, index=False)
 
     write_number_to_file(index_file_name, index + a)
 
+
+
 #write_to_csv()
 #write_line()
-write_addition()
+#write_addition()
+write_title()
