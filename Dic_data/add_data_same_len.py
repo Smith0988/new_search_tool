@@ -109,8 +109,14 @@ def get_en_article_title(url):
 
             # Tìm thẻ div có class là 'article-title'
             article_title_tag = soup.find('div', class_='article-title')
+            
+            if not article_title_tag:
+                article_title_tag = soup.find('h2', class_='articleTitle cABlue')
 
-            # Kiểm tra nếu tồn tại thẻ và lấy nội dung text của tiêu đề
+            if not article_title_tag:
+                article_title_tag = soup.find('h2', class_='printTitle geo')
+
+            # Kiểm tra nếu tồn tại thẻ và lấy nội dung text của tiêu đề printTitle geo
             if article_title_tag:
                 article_title = article_title_tag.text.strip()
                 return article_title
@@ -626,14 +632,14 @@ def write_title():
     # Lay gia tri
     links_en, links_vn = get_links_from_csv(file_name)
     index = read_number_from_file(index_file_name)
-    a = 10000
+    a = 13000
     for i in range(index, index + a):
         data = []
         write_number_to_file(index_file_name, i + 1)
         line_en = get_en_article_title(links_en[i])
         line_vn = get_vn_article_title(links_vn[i])
-        print(links_en[i])
-        print(links_vn[i])
+        #print(links_en[i])
+        #print(links_vn[i])
         # Thêm dữ liệu vào danh sách data
         data.append([line_en, line_vn])
 
