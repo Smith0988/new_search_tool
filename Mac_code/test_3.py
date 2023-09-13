@@ -1,26 +1,193 @@
+import re
+import sys
+import nltk
+import os
 import pandas as pd
+from docx import Document
+import requests
+from bs4 import BeautifulSoup
+from google_translate import translate_with_google_translate
 
-# Đọc tệp CSV gốc vào DataFrame
-df = pd.read_csv('link_eng_vn_gct.csv')
+copyright_text = "Bản quyền © 2023 Minghui.org. Mọi quyền được bảo lưu."
+from concurrent.futures import ThreadPoolExecutor
 
-# Tạo một hàm để trích xuất số từ URL
-def extract_number(url):
-    parts = url.split('/')
-    for part in parts:
-        if '-' in part:
-            number_part = part.split('-')[0]
-            if number_part.isdigit():
-                return int(number_part)
-    return 0  # Trả về 0 nếu không tìm thấy số trong URL
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
 
-# Sử dụng chỉ số cột thay vì tên cột (ví dụ: cột 1 là df.iloc[:, 1])
-df['Number'] = df.iloc[:, 1].apply(extract_number)
+    return os.path.join(base_path, relative_path)
 
-# Sắp xếp DataFrame theo số từ lớn đến bé
-df_sorted = df.sort_values(by='Number', ascending=False)
 
-# Xóa cột số (đã không cần thiết sau khi đã sắp xếp)
-df_sorted.drop('Number', axis=1, inplace=True)
+csv_filename = resource_path("data\link_eng_vn_gct.csv")
+csv_filename_dic = resource_path("data\dic_eng_vn_data.csv")
+kv_data = resource_path("data\KV_data.csv")
 
-# Lưu DataFrame đã sắp xếp thành tệp CSV mới
-df_sorted.to_csv('link_eng_vn_gct_sorted.csv', index=False)
+
+def find_vietnamese_link_1(english_link):
+    # Đọc dữ liệu từ file CSV
+    vietnamese_link = ""
+    df = pd.read_csv(csv_filename)
+    match = ""
+    if re.match(r'https?://', english_link):
+        match = re.search(r'(en\..*?\.html)', english_link)
+    if match:
+        english_link_1 = match.group(1)
+    else:
+        english_link_1 = english_link
+    # Tìm link tiếng Anh trong cột 1 sử dụng biểu thức chính quy
+
+    list1 = df.iloc[:, 0].tolist()
+        # Lấy cột 1 và gán vào list2
+    list2 = df.iloc[:, 1].tolist()
+    for i in range(len(list1)):
+        if english_link_1 in list1[i]:
+            vietnamese_link = list2[i]
+            break
+    if vietnamese_link:
+        if not vietnamese_link.startswith("http://") and not vietnamese_link.startswith("https://"):
+            vietnamese_link = "https:" + vietnamese_link  # Thêm schema "https:" nếu cần
+        return vietnamese_link
+    else:
+        return "Can not find Vietnamese Link"
+def get_related_link(url):
+    response = requests.get(url)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        article_contents_1 = soup.find('div', class_='article-body-content')
+        article_contents_2 = soup.find('div', class_='articleZhengwen geo cBBlack')
+        if article_contents_1:
+            article_contents = article_contents_1
+        else:
+            article_contents = article_contents_2
+        if article_contents:
+            paragraphs = article_contents.find_all(['p', 'h3'])
+            valid_paragraphs = []
+            start_collecting = False
+            related_links = []
+            for paragraph in paragraphs:
+                text = paragraph.get_text(strip=True)
+
+                if "Related article" in text or "Related Article" in text or "Related Report" in text or "Related report" in text:
+                    start_collecting = True
+
+                if start_collecting:
+                    if 'splitted' in paragraph.get("class", []):
+                        span_sections = paragraph.find_all('span', class_='section')
+                        for span in span_sections:
+                            text_1 = span.get_text(strip=True)
+                            valid_paragraphs.append(text_1)
+                            for link in paragraph.find_all('a', href=True):
+                                related_links.append(link['href'])
+                    else:
+                        valid_paragraphs.append(text)
+                        for link in paragraph.find_all('a', href=True):
+                            related_links.append(link['href'])
+
+            if valid_paragraphs:
+                article_content = "\n".join(valid_paragraphs)
+                return valid_paragraphs, related_links
+            else:
+                return [], related_links
+        else:
+            return [], []
+    else:
+        return [], []
+
+
+def find_vietnamese_link(english_link):
+    first_text = "Bài liên quan:"
+    all_link = []
+    result_link = []
+    result_link.append(first_text)
+    # Đọc dữ liệu từ file CSV
+    related_content, related_link = get_related_link(english_link)
+    if related_content:
+        for link in related_link:
+            all_link.append(link)
+        for link in all_link:
+            result_link.append(find_vietnamese_link_1(link))
+        return related_content, result_link, all_link
+    else:
+        return []
+
+
+def find_vietnamese_sentence(english_sentence):
+    # Đọc dữ liệu từ file CSV
+    df = pd.read_csv(csv_filename_dic)
+
+    # Tìm link tiếng Anh trong cột 1
+    row = df[df.iloc[:, 0] == english_sentence]
+
+    if not row.empty:
+        vietnamese_sentence = row.iloc[0, 1]
+        return vietnamese_sentence
+    else:
+        return []
+
+
+def find_vietnamese_sentence_1(english_sentence):
+    result_list = []  # Danh sách chứa cột 1 (tiếng Anh)
+    try:
+        # Đọc dữ liệu từ file CSV vào một DataFrame
+        df = pd.read_csv(csv_filename_dic)
+        # Lấy cột 0 và gán vào list1
+        list1 = df.iloc[:, 0].tolist()
+
+        # Lấy cột 1 và gán vào list2
+        list2 = df.iloc[:, 1].tolist()
+        for i in range(len(list1)):
+            if english_sentence in list1[i]:
+                result_list.append((list2[i]))
+                break
+        if result_list:
+            return result_list
+        else:
+            return []
+    except Exception as e:
+        print(f"Đã xảy ra lỗi: {str(e)}")
+        return e
+
+import pandas as pd
+import difflib
+
+def find_vietnamese_sentence_2(english_sentence):
+    result_list = []  # Danh sách chứa cột 1 (tiếng Anh)
+    try:
+        # Đọc dữ liệu từ file CSV vào một DataFrame
+        df = pd.read_csv(csv_filename_dic)
+
+        # Lấy cột 0 và gán vào list1
+        list1 = df.iloc[:, 0].tolist()
+
+        # Lấy cột 1 và gán vào list2
+        list2 = df.iloc[:, 1].tolist()
+
+        for i in range(len(list1)):
+            # Tính toán tỷ lệ tương đồng
+            similarity_ratio = difflib.SequenceMatcher(None, english_sentence, list1[i]).ratio()
+
+            if similarity_ratio > 0.95:  # Điều kiện để thêm kết quả vào danh sách
+                result_list.append((list2[i], similarity_ratio))
+                break
+
+        return result_list
+    except Exception as e:
+        print(f"Đã xảy ra lỗi: {str(e)}")
+        return e
+
+
+sentece_en = "Ms. Peng Xueping"
+
+results = find_vietnamese_sentence_2(sentece_en)
+
+if results:
+    print("Câu tiếng Việt tương ứng (độ tương đồng > 95%):")
+    for result in results:
+        vietnamese_sentence, similarity_ratio = result
+        print(f"{vietnamese_sentence} (Tương đồng: {similarity_ratio:.2%})")
+else:
+    print("Không tìm thấy câu tiếng Việt tương ứng.")

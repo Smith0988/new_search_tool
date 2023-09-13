@@ -1,27 +1,50 @@
 import pandas as pd
 
-# Đọc tệp CSV vào DataFrame, bỏ qua các dòng có lỗi
+# Đọc tệp CSV vào DataFrame
 try:
-    df = pd.read_csv('unique_rows.csv', header=None)  # Đặt header=None để không sử dụng tên cột
+    df = pd.read_csv('dic_eng_vn_data.csv')
 except pd.errors.ParserError as e:
     print(f"Lỗi khi đọc tệp CSV: {e}")
-    df = None  # Gán df bằng None để đảm bảo nó được định nghĩa
+    df = None
 
 # Kiểm tra xem df có được định nghĩa hay không
 if df is not None:
-    # Tạo một DataFrame mới để lưu trữ các hàng đã được xử lý
-    processed_df = pd.DataFrame(columns=[0, 1])
+    # Tạo một danh sách để lưu trữ các hàng thỏa mãn điều kiện
+    rows_with_condition = []
+
+    # Tạo một danh sách để lưu trữ các hàng không thỏa mãn điều kiện
+    rows_no_condition = []
 
     # Duyệt qua từng hàng của DataFrame
     for index, row in df.iterrows():
-        # Loại bỏ khoảng trắng không cần thiết ở cột 1 và cột 2
-        column1 = ' '.join(row[0].split())
-        column2 = ' '.join(row[1].split())
+        # Tách nội dung của cột 'English' và 'Vietnamese' thành các từ
+        words_in_english = row[0].split()
+        words_in_vietnamese = row[1].split()
 
-        # Kiểm tra điều kiện "hoặc" cho cả hai cột
-        if len(column1.split()) > 4 or (len(column2.split()) > 4 and "thành phố" not in column2):
-            # Thêm hàng đã xử lý vào DataFrame mới
-            processed_df = processed_df.append({0: column1, 1: column2}, ignore_index=True)
+        # Kiểm tra điều kiện
+        if (len(words_in_english) >= 2 * len(words_in_vietnamese)) or (len(words_in_vietnamese) >= 2 * len(words_in_english)):
+            if len(words_in_english) > 30 or len(words_in_english) > 30:
+                rows_with_condition.append(row)
+            else:
+                rows_no_condition.append(row)
+        else:
+            rows_no_condition.append(row)
 
-    # Ghi DataFrame mới vào file CSV tương ứng
-    processed_df.to_csv('processed_rows.csv', header=False, index=False)
+    # Kiểm tra xem có hàng nào thỏa mãn điều kiện hay không
+    if len(rows_with_condition) > 0:
+        # Tạo DataFrame mới từ danh sách các hàng thỏa mãn điều kiện
+        result_df = pd.DataFrame(rows_with_condition, columns=df.columns)
+
+        # Ghi vào tệp CSV 'rows_with_condition.csv'
+        result_df.to_csv('rows_with_condition.csv', index=False)
+
+    # Tạo DataFrame mới từ danh sách các hàng không thỏa mãn điều kiện
+    result_no_condition_df = pd.DataFrame(rows_no_condition, columns=df.columns)
+
+    # Ghi vào tệp CSV 'rows_no_condition.csv'
+    result_no_condition_df.to_csv('rows_no_condition.csv', index=False)
+
+    print("Đã ghi tệp 'rows_with_condition.csv' cho các hàng thỏa mãn điều kiện.")
+    print("Đã ghi tệp 'rows_no_condition.csv' cho các hàng không thỏa mãn điều kiện.")
+else:
+    print("Không thể thực hiện vì không có DataFrame.")

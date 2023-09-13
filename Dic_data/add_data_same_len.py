@@ -374,7 +374,7 @@ def write_process(lines_en, lines_vn):
 def write_to_csv():
     # Khai bao
     file_name = 'link_eng_vn_gct_new.csv'
-    index_file_name = 'row_number_new.txt'
+    index_file_name = 'row_number.txt'
 
     # Lay gia tri
     links_en, links_vn = get_links_from_csv(file_name)
@@ -458,7 +458,7 @@ def get_vn_line(url):
 def write_line():
     # Khai bao
     file_name = 'link_eng_vn_gct_new.csv'
-    index_file_name = 'row_number_new.txt'
+    index_file_name = 'row_number.txt'
 
     # Lay gia tri
     links_en, links_vn = get_links_from_csv(file_name)
@@ -479,7 +479,7 @@ def write_line():
         df = pd.DataFrame(data, columns=['English_Link', 'Vietnamese_Link'], index=None)
 
         # Ghi vào file line_en_vn.csv mà không ghi đè dữ liệu
-        df.to_csv("line_en_vn.csv", mode='a', header=False, index=False)
+        df.to_csv("dic_eng_vn_data_new.csv", mode='a', header=False, index=False)
 
     write_number_to_file(index_file_name, index + a)
 
@@ -594,7 +594,7 @@ def extract_proper_nouns_en(text):
 def write_addition():
     # Khai bao
     file_name = 'link_eng_vn_gct_new.csv'
-    index_file_name = 'row_number_new.txt'
+    index_file_name = 'row_number.txt'
 
     # Lay gia tri
     links_en, links_vn = get_links_from_csv(file_name)
@@ -626,7 +626,7 @@ def write_addition():
 
 def write_title():
     # Khai bao
-    file_name = 'link_eng_vn_gct.csv'
+    file_name = 'link_eng_vn_gct_new.csv'
     index_file_name = 'row_number.txt'
 
     # Lay gia tri
@@ -638,8 +638,8 @@ def write_title():
         write_number_to_file(index_file_name, i + 1)
         line_en = get_en_article_title(links_en[i])
         line_vn = get_vn_article_title(links_vn[i])
-        #print(links_en[i])
-        #print(links_vn[i])
+        print(links_en[i])
+        print(links_vn[i])
         # Thêm dữ liệu vào danh sách data
         data.append([line_en, line_vn])
 
@@ -647,7 +647,7 @@ def write_title():
         df = pd.DataFrame(data, columns=['English_Link', 'Vietnamese_Link'], index=None)
 
         # Ghi vào file line_en_vn.csv mà không ghi đè dữ liệu
-        df.to_csv("title_en_vn.csv", mode='a', header=False, index=False)
+        df.to_csv("dic_eng_vn_data_new.csv", mode='a', header=False, index=False)
 
     write_number_to_file(index_file_name, index + a)
 
