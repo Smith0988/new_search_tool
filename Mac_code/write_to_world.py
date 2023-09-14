@@ -1,3 +1,4 @@
+import difflib
 import re
 import sys
 
@@ -117,17 +118,50 @@ def find_vietnamese_link(english_link):
 
 
 def find_vietnamese_sentence(english_sentence):
-    # Đọc dữ liệu từ file CSV
-    df = pd.read_csv(csv_filename_dic)
+    result_list = ""  # Danh sách chứa cột 1 (tiếng Anh)
+    try:
+        # Đọc dữ liệu từ file CSV vào một DataFrame
+        df = pd.read_csv(csv_filename_dic)
 
-    # Tìm link tiếng Anh trong cột 1
-    row = df[df.iloc[:, 0] == english_sentence]
+        # Lấy giá trị của cột số 3 và chuyển thành kiểu int
+        column3_values = df.iloc[:, 2].astype(int)
 
-    if not row.empty:
-        vietnamese_sentence = row.iloc[0, 1]
-        return vietnamese_sentence
-    else:
-        return []
+        # Độ dài của english_sentence
+        english_length = len(english_sentence.split())
+        if english_length > 61:
+            return []
+
+        if english_length < 5 or english_length == 61:
+            filtered_df = df[column3_values == english_length]
+        else:
+            # Lọc ra các hàng có độ dài trùng với độ dài của english_sentence hoặc +- 1
+            filtered_df = df[(column3_values == english_length) |
+                             (column3_values == english_length - 1) |
+                             (column3_values == english_length + 1)]
+
+        # Lấy danh sách các phần tử trong cột 1 và cột 2 tương ứng
+        list1 = filtered_df.iloc[:, 0].tolist()
+        list2 = filtered_df.iloc[:, 1].tolist()
+        temp_ratio = 0.8
+        for i in range(len(list1)):
+            # Loại bỏ các từ viết hoa và ngày tháng trong list1[i] và english_sentence
+            #list1_cleaned = ' '.join([word for word in list1[i].split() if not word.istitle()])
+            #english_sentence_cleaned = ' '.join([word for word in english_sentence.split() if not word.istitle()])
+
+            # Tính toán tỷ lệ tương đồng
+            similarity_ratio = difflib.SequenceMatcher(None, english_sentence, list1[i]).ratio()
+
+            if similarity_ratio > temp_ratio:  # Điều kiện để thêm kết quả vào danh sách
+                result_list = []
+                temp_ratio = similarity_ratio
+                result_list = list2[i]
+        if result_list:
+            return result_list
+        else:
+            return []
+    except Exception as e:
+        print(f"Đã xảy ra lỗi: {str(e)}")
+        return e
 
 
 def get_vn_article_title(url):
@@ -287,8 +321,8 @@ def paragraph_execute_text(english_paragragh):
         if vietnamese_sentence:
             vietnamese_sentence_list = vietnamese_sentence_list + " " + vietnamese_sentence
         else:
-            vietnamese_sentence_list = vietnamese_sentence_list + " " + translate_with_google_translate(
-                english_sentence)
+            vietnamese_sentence_list = vietnamese_sentence_list + " " + english_sentence
+            #vietnamese_sentence_list = vietnamese_sentence_list + " " + translate_with_google_translate(english_sentence)
     vietnamese_sentence_list = vietnamese_sentence_list.strip()
 
     return vietnamese_sentence_list

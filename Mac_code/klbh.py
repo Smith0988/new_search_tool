@@ -1,13 +1,12 @@
-import pandas as pd
+def tokenize_sentence(sentence):
+    # Tách câu thành các từ
+    words = sentence.split()
+    return words
 
-# Đọc dữ liệu từ tệp CSV vào DataFrame
-df = pd.read_csv('dic_eng_vn_data.csv')
+# Sử dụng hàm để tách câu
+english_sentence = "Ms. Wang’s three-year-old granddaughter cried all night and developed a fever that lingered for several days"
+tokens = tokenize_sentence(english_sentence)
 
-# Tính độ dài (số từ) của mỗi phần tử trong cột 1 và thêm một cột mới vào DataFrame
-df['Word_Count'] = df.iloc[:, 0].str.split().apply(len)
-
-# Sắp xếp DataFrame theo cột 'Word_Count' (số từ) từ ít đến nhiều
-df_sorted = df.sort_values(by='Word_Count')
-
-# Ghi DataFrame đã sắp xếp ra tệp CSV mới
-df_sorted.to_csv('dic_eng_vn_data_sorted.csv', index=False)
+# In các từ trong câu
+for word in tokens:
+    print(word)

@@ -8,6 +8,11 @@ import requests
 from bs4 import BeautifulSoup
 from google_translate import translate_with_google_translate
 
+import pandas as pd
+import difflib
+import datefinder
+from pypinyin import lazy_pinyin
+
 copyright_text = "Bản quyền © 2023 Minghui.org. Mọi quyền được bảo lưu."
 from concurrent.futures import ThreadPoolExecutor
 
@@ -151,43 +156,61 @@ def find_vietnamese_sentence_1(english_sentence):
         print(f"Đã xảy ra lỗi: {str(e)}")
         return e
 
-import pandas as pd
-import difflib
 
-def find_vietnamese_sentence_2(english_sentence):
-    result_list = []  # Danh sách chứa cột 1 (tiếng Anh)
+
+def is_pinyin(text):
+    # Kiểm tra xem một chuỗi có phải là Pinyin hay không
+    pinyin = lazy_pinyin(text)
+    return all(word.isalpha() and word.islower() for word in pinyin)
+
+def find_vietnamese_sentence_4(english_sentence, csv_filename_dic):
+    result_list = ""  # Danh sách chứa cột 1 (tiếng Anh)
     try:
         # Đọc dữ liệu từ file CSV vào một DataFrame
         df = pd.read_csv(csv_filename_dic)
 
-        # Lấy cột 0 và gán vào list1
-        list1 = df.iloc[:, 0].tolist()
+        # Lấy giá trị của cột số 3 và chuyển thành kiểu int
+        column3_values = df.iloc[:, 2].astype(int)
 
-        # Lấy cột 1 và gán vào list2
-        list2 = df.iloc[:, 1].tolist()
+        # Độ dài của english_sentence
+        english_length = len(english_sentence.split())
+        if english_length > 61:
+            return []
 
+        if english_length < 5 or english_length == 61:
+            filtered_df = df[column3_values == english_length]
+        else:
+            # Lọc ra các hàng có độ dài trùng với độ dài của english_sentence hoặc +- 1
+            filtered_df = df[(column3_values == english_length) |
+                             (column3_values == english_length - 1) |
+                             (column3_values == english_length + 1)]
+
+        # Lấy danh sách các phần tử trong cột 1 và cột 2 tương ứng
+        list1 = filtered_df.iloc[:, 0].tolist()
+        list2 = filtered_df.iloc[:, 1].tolist()
+        temp_ratio = 0.0
         for i in range(len(list1)):
+            # Loại bỏ các từ viết hoa và ngày tháng trong list1[i] và english_sentence
+            list1_cleaned = ' '.join([word for word in list1[i].split() if not is_pinyin(word)])
+            english_sentence_cleaned = ' '.join([word for word in english_sentence.split() if not is_pinyin(word)])
+
             # Tính toán tỷ lệ tương đồng
-            similarity_ratio = difflib.SequenceMatcher(None, english_sentence, list1[i]).ratio()
+            similarity_ratio = difflib.SequenceMatcher(None, english_sentence_cleaned, list1_cleaned).ratio()
 
-            if similarity_ratio > 0.95:  # Điều kiện để thêm kết quả vào danh sách
-                result_list.append((list2[i], similarity_ratio))
-                break
-
-        return result_list
+            if similarity_ratio > temp_ratio:  # Điều kiện để thêm kết quả vào danh sách
+                result_list = []
+                temp_ratio = similarity_ratio
+                result_list = list2[i]
+        if result_list:
+            return result_list
+        else:
+            return []
     except Exception as e:
         print(f"Đã xảy ra lỗi: {str(e)}")
         return e
 
+# Sử dụng hàm với tên tệp CSV là 'dic_eng_vn_data.csv'
+result = find_vietnamese_sentence_4("Mr. Qi Tintan was arrested on the same day as Ms. Li.", 'dic_eng_vn_data_sorted.csv')
 
-sentece_en = "Ms. Peng Xueping"
-
-results = find_vietnamese_sentence_2(sentece_en)
-
-if results:
-    print("Câu tiếng Việt tương ứng (độ tương đồng > 95%):")
-    for result in results:
-        vietnamese_sentence, similarity_ratio = result
-        print(f"{vietnamese_sentence} (Tương đồng: {similarity_ratio:.2%})")
-else:
-    print("Không tìm thấy câu tiếng Việt tương ứng.")
+# In kết quả
+print(result)
