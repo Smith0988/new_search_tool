@@ -12,13 +12,28 @@ def search_main_article_link(english_link):
 
 
 def search_related_article_link(english_link):
+    if find_all_var.get() == 1:
+        # Checkbox "Find All Link" được chọn
+        # Thực hiện các hành động cần thiết khi checkbox được chọn
+        pass
+    else:
+        # Checkbox "Find All Link" không được chọn
+        # Thực hiện các hành động cần thiết khi checkbox không được chọn
+        pass
+
+
+
     result_text = []
-    english_content, vietnam_link, english_link_list = find_vietnamese_link(english_link)
-    if english_content:
-        for i in range(len(english_content)):
-            result_text.append(english_content[i])
-            result_text.append(vietnam_link[i])
-            result_text_final = "\n".join(result_text)
+    result_text.append("Related reports:")
+    result_text.append("Bài liên quan:")
+    vietnam_link, english_link_list = find_vietnamese_link_2(english_link)
+    if english_link_list:
+        for i in range(len(english_link_list)):
+            # Kiểm tra xem link có chứa "en.minghui.org" hay không
+            if "en.minghui.org" in english_link_list[i]:
+                result_text.append(get_en_article_title(english_link_list[i]))
+                result_text.append(vietnam_link[i])
+        result_text_final = "\n".join(result_text)
     else:
         result_text_final = "Have no related link in article"
 
@@ -177,6 +192,10 @@ def display_result(result_text):
     result_textbox.insert(tk.END, result_text)
 
 
+
+
+
+
 root = tk.Tk()
 window_width = 1300
 window_height = 650
@@ -257,6 +276,13 @@ result_label.grid(row=2, column=0, padx=(10, 0), pady=10, sticky='w')
 # Tạo nút "Copy" để sao chép nội dung từ vùng văn bản đa dòng
 copy_button = tk.Button(root, text="Copy text result", width=20, height=1, command=copy_text, font=button_font, bg="white", fg="black")
 copy_button.grid(row=2, column=0, padx=(150, 0), pady=0, sticky='w')
+
+find_all_var = tk.IntVar()
+
+# Tạo checkbox "Find All Link" và liên kết nó với biến find_all_var
+find_all_checkbox = tk.Checkbutton(root, text="Find All Link", variable=find_all_var)
+find_all_checkbox.grid(row=2, column=0, padx=(350, 0), pady=0, sticky='w')
+
 
 # Tạo Text widget với wrap="word" để tự động xuống dòng khi cần
 result_textbox = tk.Text(root, height=18, width=100, wrap="word")

@@ -73,7 +73,7 @@ def get_related_link(url):
             for paragraph in paragraphs:
                 text = paragraph.get_text(strip=True)
 
-                if "Related article" in text or "Related Article" in text or "Related Report" in text or "Related report" in text:
+                if "Related article" in text or "Related Article" in text or "Related Report" in text or "Related report" in text or "Sentencing Report" in text or "Other Summary Report" in text:
                     start_collecting = True
 
                 if start_collecting:
@@ -90,21 +90,41 @@ def get_related_link(url):
                             related_links.append(link['href'])
 
             if valid_paragraphs:
-                article_content = "\n".join(valid_paragraphs)
                 return valid_paragraphs, related_links
             else:
-                return [], related_links
+                return [], []
         else:
             return [], []
     else:
         return [], []
 
 
+def get_related_link_1(url):
+    response = requests.get(url)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+        article_contents_1 = soup.find('div', class_='article-body-content')
+        article_contents_2 = soup.find('div', class_='articleZhengwen geo cBBlack')
+        if article_contents_1:
+            article_contents = article_contents_1
+        else:
+            article_contents = article_contents_2
+        if article_contents:
+            paragraphs = article_contents.find_all(['p', 'h3'])
+            related_links = []
+            for paragraph in paragraphs:
+                for link in paragraph.find_all('a', href=True):
+                    related_links.append(link['href'])
+            if related_links:
+                return related_links
+        else:
+            return []
+    else:
+        return []
+
 def find_vietnamese_link(english_link):
-    first_text = "Bài liên quan:"
     all_link = []
     result_link = []
-    result_link.append(first_text)
     # Đọc dữ liệu từ file CSV
     related_content, related_link = get_related_link(english_link)
     if related_content:
@@ -114,8 +134,19 @@ def find_vietnamese_link(english_link):
             result_link.append(find_vietnamese_link_1(link))
         return related_content, result_link, all_link
     else:
-        return []
+        return [], [], []
 
+
+def find_vietnamese_link_2(english_link):
+    result_link = []
+    # Đọc dữ liệu từ file CSV
+    related_link = get_related_link_1(english_link)
+    if related_link:
+        for link in related_link:
+            result_link.append(find_vietnamese_link_1(link))
+        return result_link, related_link
+    else:
+        return [], []
 
 def find_vietnamese_sentence(english_sentence):
     result_list = ""  # Danh sách chứa cột 1 (tiếng Anh)
@@ -206,7 +237,8 @@ def get_en_article_title(url):
         elif article_title_tag_1:
             article_title = article_title_tag_1.text.strip()
         return article_title
-
+    else:
+        return article_title
 
 def write_en_article_to_doc(url):
     # Gửi yêu cầu HTTP để lấy nội dung trang web
@@ -333,9 +365,9 @@ def paragraph_text_check(english_paragragh):
     related_text = False
     copyright_check = False
     text_en = english_paragragh
-    if 'Related Report' in text_en or 'Related report' in text_en:
+    if 'Related Report' in text_en or 'Related report' in text_en or 'Sentencing Report' in text_en or 'Other Summary Report' in text_en:
         related_text = True
-    if "Related Report" in text_en or "Related report" in text_en:
+    if "Related Report" in text_en or "Related report" in text_en or "Sentencing Report" in text_en or "Other Summary Report" in text_en:
         related_text = True
     if 'en.minghui.org' in text_en or "en.minghui.org" in text_en:
         link = True
@@ -347,11 +379,13 @@ def paragraph_text_check(english_paragragh):
 
 def write_related_link_to_doc(url, link_en, link_cn):
     vietnamese_text = []
+    vietnamese_text.append("Related reports:")
+    vietnamese_text.append("Bài liên quan:")
     # Khởi động ứng dụng Microsoft Word
     english_text, vietnam_link, english_link = find_vietnamese_link(url)
 
-    for i in range(len(english_text)):
-        vietnamese_text.append(english_text[i])
+    for i in range(len(english_link)):
+        vietnamese_text.append(get_en_article_title(english_link[i]))
         vietnamese_text.append(vietnam_link[i])
     vietnamese_text.append(copyright_text)
     vietnamese_text.append(link_cn)

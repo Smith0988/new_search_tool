@@ -218,9 +218,9 @@ def add_link_to_csv(file_name_en, file_name_vn):
 
 
 
-#get_new_link_vn(article_url_GCT)
-#get_new_link_en(file_new_gct_vn)
-#add_link_to_csv(file_new_gct_en, file_new_gct_vn)
+get_new_link_vn(article_url_GCT)
+get_new_link_en(file_new_gct_vn)
+add_link_to_csv(file_new_gct_en, file_new_gct_vn)
 
 #get_new_link_vn(article_url_tdth)
 #get_new_link_en(file_new_gct_vn)
