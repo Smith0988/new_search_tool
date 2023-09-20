@@ -119,21 +119,6 @@ def find_vietnamese_link(english_link):
     else:
         return []
 
-
-def find_vietnamese_sentence(english_sentence):
-    # Đọc dữ liệu từ file CSV
-    df = pd.read_csv(csv_filename_dic)
-
-    # Tìm link tiếng Anh trong cột 1
-    row = df[df.iloc[:, 0] == english_sentence]
-
-    if not row.empty:
-        vietnamese_sentence = row.iloc[0, 1]
-        return vietnamese_sentence
-    else:
-        return []
-
-
 def find_vietnamese_sentence_1(english_sentence):
     result_list = []  # Danh sách chứa cột 1 (tiếng Anh)
     try:
@@ -157,20 +142,9 @@ def find_vietnamese_sentence_1(english_sentence):
         return e
 
 
-
-def is_pinyin(text):
-    # Kiểm tra xem một chuỗi có phải là Pinyin hay không
-    pinyin = lazy_pinyin(text)
-    return all(word.isalpha() and word.islower() for word in pinyin)
-
-def find_vietnamese_sentence_4(english_sentence):
+def find_vietnamese_sentence(english_sentence):
     result_list = ""  # Danh sách chứa cột 1 (tiếng Anh)
     try:
-
-        words = target_english_sentence.split()
-        english_length = len(words)
-        capitalized_words = [word for word in words if word.istitle()]
-        your_uppercase_count = len(capitalized_words)
         # Đọc dữ liệu từ file CSV vào một DataFrame
         df = pd.read_csv(csv_filename_dic)
 
@@ -178,6 +152,51 @@ def find_vietnamese_sentence_4(english_sentence):
         column3_values = df.iloc[:, 2].astype(int)
 
         # Độ dài của english_sentence
+        english_length = len(english_sentence.split())
+        if english_length > 61:
+            return []
+
+        filtered_df = df[column3_values == english_length]
+        # Lấy danh sách các phần tử trong cột 1 và cột 2 tương ứng
+        list1 = filtered_df.iloc[:, 0].tolist()
+        list2 = filtered_df.iloc[:, 1].tolist()
+        temp_ratio = 0.95
+        for i in range(len(list1)):
+            # Tính toán tỷ lệ tương đồng
+            similarity_ratio = difflib.SequenceMatcher(None, english_sentence, list1[i]).ratio()
+            if similarity_ratio > temp_ratio:  # Điều kiện để thêm kết quả vào danh sách
+                temp_ratio = similarity_ratio
+                result_list = list2[i]
+        if result_list:
+            return result_list
+        else:
+            return []
+    except Exception as e:
+        print(f"Đã xảy ra lỗi: {str(e)}")
+        return e
+
+def find_vietnamese_sentence_4(english_sentence):
+    result_list = ""  # Danh sách chứa cột 1 (tiếng Anh)
+    try:
+
+        words = english_sentence.split()
+        #print(words)
+        english_length = len(words)
+        capitalized_words = [word for word in words if word.istitle()]
+        your_uppercase_count = len(capitalized_words)
+        #print(capitalized_words)
+        if your_uppercase_count > english_length / 2:
+            your_uppercase_count =1
+        else:
+            your_uppercase_count =0
+
+        lowercase_words = re.findall(r'\b[a-z]+\b', english_sentence)
+        #print(lowercase_words)
+        # Đọc dữ liệu từ file CSV vào một DataFrame
+        df = pd.read_csv("dic_eng_vn_data_updated.csv")
+
+        # Lấy giá trị của cột số 3 và chuyển thành kiểu int
+        column3_values = df.iloc[:, 2].astype(int)
 
         # Số từ viết hoa của câu tiếng Anh
         uppercase_count = df.iloc[:, 3].astype(int)
@@ -191,6 +210,8 @@ def find_vietnamese_sentence_4(english_sentence):
             # Lọc ra các hàng có độ dài trùng với độ dài của english_sentence hoặc +- 1
             filtered_df = df[((column3_values == english_length) |
                               (column3_values == english_length - 1) |
+                              (column3_values == english_length - 2) |
+                              (column3_values == english_length + 2) |
                               (column3_values == english_length + 1)) &
                               (uppercase_count == your_uppercase_count)]
 
@@ -199,23 +220,37 @@ def find_vietnamese_sentence_4(english_sentence):
         list2 = filtered_df.iloc[:, 1].tolist()
         result_list = []
         temp_ratio = 0.8
-        for i in range(len(list1)):
-            similarity_ratio = difflib.SequenceMatcher(None, english_sentence, list1[i]).ratio()
-            if similarity_ratio > temp_ratio:  # Điều kiện để thêm kết quả vào danh sách
-                temp_ratio = similarity_ratio
-                result_list = list2[i]
+
+        if english_length <= 9 or your_uppercase_count:
+            for i in range(len(list1)):
+                similarity_ratio = difflib.SequenceMatcher(None, english_sentence, list1[i]).ratio()
+                if similarity_ratio > temp_ratio:  # Điều kiện để thêm kết quả vào danh sách
+                    temp_ratio = similarity_ratio
+                    result_list = list2[i]
+        else:
+            j=0
+            for i in range(len(list1)):
+                for word in lowercase_words:
+                    if word in list1[i]:
+                        j = j+1
+                if j == len(lowercase_words):
+                    result_list = list2[i]
+                    return result_list
+
+
         if result_list:
             return result_list
         else:
             return []
+
     except Exception as e:
         print(f"Đã xảy ra lỗi: {str(e)}")
         return e
 
 
 # Điều kiện mẫu để tìm kiếm
-target_english_sentence = "The water had an unpleasant smell, but the practitioners dismissed it as anything unusual, since plastic cups sometimes smell funny."
+target_english_sentence = "Ms. Jin BL, a Changchun City resident, is being held in Cell 311 of the 8th Ward."
 input_file_path = "dic_eng_vn_data_updated.csv"  # Thay đổi đường dẫn đến file CSV đầu vào
 
-print(find_vietnamese_sentence_4(target_english_sentence))
+print(find_vietnamese_sentence(target_english_sentence))
 

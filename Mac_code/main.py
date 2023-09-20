@@ -12,32 +12,33 @@ def search_main_article_link(english_link):
 
 
 def search_related_article_link(english_link):
-    if find_all_var.get() == 1:
-        # Checkbox "Find All Link" được chọn
-        # Thực hiện các hành động cần thiết khi checkbox được chọn
-        pass
-    else:
-        # Checkbox "Find All Link" không được chọn
-        # Thực hiện các hành động cần thiết khi checkbox không được chọn
-        pass
-
-
-
     result_text = []
     result_text.append("Related reports:")
     result_text.append("Bài liên quan:")
-    vietnam_link, english_link_list = find_vietnamese_link_2(english_link)
-    if english_link_list:
-        for i in range(len(english_link_list)):
-            # Kiểm tra xem link có chứa "en.minghui.org" hay không
-            if "en.minghui.org" in english_link_list[i]:
-                result_text.append(get_en_article_title(english_link_list[i]))
-                result_text.append(vietnam_link[i])
-        result_text_final = "\n".join(result_text)
+
+    if find_all_var.get() == 1:
+        vietnam_link, english_link_list = find_vietnamese_link_2(english_link)
+        if english_link_list:
+            for i in range(len(english_link_list)):
+                # Kiểm tra xem link có chứa "en.minghui.org" hay không
+                if "en.minghui.org" in english_link_list[i]:
+                    result_text.append(get_en_article_title(english_link_list[i]))
+                    result_text.append(vietnam_link[i])
+            result_text_final = "\n".join(result_text)
+        else:
+            result_text_final = "Have no related link in article"
     else:
-        result_text_final = "Have no related link in article"
+        english_text, vietnam_link, english_link = find_vietnamese_link(english_link)
+        if english_link:
+            for i in range(len(english_link)):
+                result_text.append(get_en_article_title(english_link[i]))
+                result_text.append(vietnam_link[i])
+            result_text_final = "\n".join(result_text)
+        else:
+            result_text_final = "Have no related link in article"
 
     return result_text_final
+
 def update_new_link():
     get_new_link_vn(article_url_GCT)
     get_new_link_en(file_new_gct_vn)
@@ -192,10 +193,6 @@ def display_result(result_text):
     result_textbox.insert(tk.END, result_text)
 
 
-
-
-
-
 root = tk.Tk()
 window_width = 1300
 window_height = 650
@@ -237,7 +234,7 @@ action_button_3 = tk.Button(root, text="Related Link", width=button_width, heigh
 action_button_3.grid(row=0, column=0, padx=(380, 0), pady=10, sticky='w')
 
 action_button_4 = tk.Button(root, text="A_Content", width=button_width, height=1, command=article_content,bg="#00405d", fg="white",font=button_font)
-action_button_4.grid(row=0, column=0, padx=(570, 0), pady=10, sticky='w')
+action_button_4.grid(row=0, column=0, padx=(1140, 0), pady=10, sticky='w')
 
 action_button_5 = tk.Button(root, text="KV_Search", width=button_width, height=1, command=searc_kv,bg="#00405d", fg="white",font=button_font)
 action_button_5.grid(row=0, column=0, padx=(760, 0), pady=10, sticky='w')
@@ -246,7 +243,7 @@ action_button_6 = tk.Button(root, text="Auto_Trans", width=button_width, height=
 action_button_6.grid(row=0, column=0, padx=(950, 0), pady=10, sticky='w')
 
 action_button_7 = tk.Button(root, text="VHM_text", width=button_width, height=1, command=search_sentence,bg="#00405d", fg="white",font=button_font)
-action_button_7.grid(row=0, column=0, padx=(1140, 0), pady=10, sticky='w')
+action_button_7.grid(row=0, column=0, padx=(570, 0), pady=10, sticky='w')
 
 
 # Hàng 2
@@ -280,8 +277,8 @@ copy_button.grid(row=2, column=0, padx=(150, 0), pady=0, sticky='w')
 find_all_var = tk.IntVar()
 
 # Tạo checkbox "Find All Link" và liên kết nó với biến find_all_var
-find_all_checkbox = tk.Checkbutton(root, text="Find All Link", variable=find_all_var)
-find_all_checkbox.grid(row=2, column=0, padx=(350, 0), pady=0, sticky='w')
+find_all_checkbox = tk.Checkbutton(root, text="All Link", width=10, height=1, variable=find_all_var, font=button_font, bg="white", fg="black")
+find_all_checkbox.grid(row=2, column=0, padx=(380, 0), pady=0, sticky='w')
 
 
 # Tạo Text widget với wrap="word" để tự động xuống dòng khi cần

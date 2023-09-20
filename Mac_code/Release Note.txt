@@ -1,6 +1,0 @@
-1.4 update
- - Find Related: Tìm tất cả các link tiếng Việt có trong bài TA thay vì chỉ tìm link liên quan
-
-1.3 Update
- - Update data Auto Trans và KV mới
- - Find related: Chỉ tìm link liên quan ở mục cuối bài
