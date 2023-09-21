@@ -140,7 +140,7 @@ def searc_kv():
         result_textbox.configure(font=custom_font)
         result_textbox.tag_configure("bold", font=("Helvetica", 11, "bold"))
         result_textbox.tag_configure("italic", font=("Helvetica", 11, "italic"))
-        english_text_in, vietname_text_in, in_text = find_translation(user_input)
+        english_text_in, vietname_text_in, in_text, vietname_link = find_translation(user_input)
         if not english_text_in:
             result_textbox.delete(1.0, tk.END)
             result_textbox.insert(tk.END, "Can not found, please check input text")
@@ -163,6 +163,8 @@ def searc_kv():
         result_textbox.insert(tk.END, "\n")
         result_textbox.insert(tk.END, "=======================================================================")
         result_textbox.insert(tk.END, "\n")
+        result = "\n".join(vietname_link)
+        result_textbox.insert(tk.END, result )
 
 
 def search_sentence():

@@ -423,6 +423,7 @@ def read_paragraph_in_word(url):
 def find_translation(english_sentence):
     english_list = []
     vietnamese_list = []
+    vietname_link = []
     in_text = tokenize_sentences_with_name_prefix(english_sentence)
     try:
         # Đọc dữ liệu từ file CSV vào một DataFrame
@@ -431,15 +432,23 @@ def find_translation(english_sentence):
         # Lấy cột 1 và gán vào list2
         vietnamese_text = df.iloc[:, 1].tolist()
         # Lặp qua từng hàng trong cột 1 (tiếng Anh)
+        check_point = False
         for i in range(len(english_text)):
-            if english_sentence.lower() in english_text[i].lower():
-                english_list.append(english_text[i])
-                vietnamese_list.append(vietnamese_text[i])
-                break
+            if not check_point:
+                if english_sentence.lower() in english_text[i].lower():
+                    english_list.append(english_text[i])
+                    vietnamese_list.append(vietnamese_text[i])
+                    check_point = True
+            else:
+                if "vi.falundafa.org" in english_text[i] or "vn.minghui.org" in english_text[i]:
+                    vietname_link.append("Title: " + vietnamese_text[i])
+                    vietname_link.append("Link TV: " + english_text[i])
+                    break
+
         if english_list:
-            return english_list, vietnamese_list, in_text
+            return english_list, vietnamese_list, in_text, vietname_link
         else:
-            return [], [], []
+            return [], [], [], []
 
     except Exception as e:
         print(f"Đã xảy ra lỗi: {str(e)}")

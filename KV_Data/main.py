@@ -9,6 +9,8 @@ with open('English.txt', 'r', encoding='utf-8') as file1, open('Vietnam.txt', 'r
 list1 = [line.strip() for line in list1 if line.strip()]
 list2 = [line.strip() for line in list2 if line.strip()]
 # Kiểm tra độ dài của 2 list
+print(len(list1))
+print(len(list2))
 if len(list1) == len(list2):
     # Ghi list1 và list2 vào file CSV
     with open('KV_data.csv', 'a', newline='', encoding='utf-8') as csv_file:
