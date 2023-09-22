@@ -7,9 +7,17 @@ from write_to_world import *
 waiting_text = "please wait, under processing..."
 
 def search_main_article_link(english_link):
+    result_link = []
     vietnamese_link = find_vietnamese_link_1(english_link)
-    return vietnamese_link
-
+    if "Can not" in vietnamese_link:
+        return vietnamese_link
+    else:
+        result_link.append("Search result:")
+        result_link.append(get_en_article_title(english_link))
+        result_link.append(get_vn_article_title(vietnamese_link))
+        result_link.append(vietnamese_link)
+        result_link = "\n".join(result_link)
+        return result_link
 
 def search_related_article_link(english_link):
     result_text = []
@@ -23,7 +31,9 @@ def search_related_article_link(english_link):
                 # Kiểm tra xem link có chứa "en.minghui.org" hay không
                 if "en.minghui.org" in english_link_list[i]:
                     result_text.append(get_en_article_title(english_link_list[i]))
+                    result_text.append(get_vn_article_title(vietnam_link[i]))
                     result_text.append(vietnam_link[i])
+                    result_text.append("      ")
             result_text_final = "\n".join(result_text)
         else:
             result_text_final = "Have no related link in article"
@@ -32,7 +42,9 @@ def search_related_article_link(english_link):
         if english_link:
             for i in range(len(english_link)):
                 result_text.append(get_en_article_title(english_link[i]))
+                result_text.append(get_vn_article_title(vietnam_link[i]))
                 result_text.append(vietnam_link[i])
+                result_text.append("      ")
             result_text_final = "\n".join(result_text)
         else:
             result_text_final = "Have no related link in article"
@@ -90,6 +102,7 @@ def search_main_link():
     else:
         display_result(waiting_text)
         result = search_main_article_link(user_input)
+
         display_result(result)
 
 
