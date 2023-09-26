@@ -33,6 +33,7 @@ file_csv = resource_path("data\link_eng_vn_gct.csv")
 article_url_GCT = "https://vn.minghui.org/news/category/cuoc-buc-hai-o-trung-quoc"
 article_url_tdth = "https://vn.minghui.org/news/category/tam-dac-the-hoi"
 article_url_new = "https://vn.minghui.org/news/category/tintuc"
+article_url_ddbl = "https://vn.minghui.org/news/category/binhluan"
 
 def read_column_from_csv(file_name, column_index):
     df = pd.read_csv(file_name, header=None)

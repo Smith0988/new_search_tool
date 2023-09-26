@@ -63,6 +63,12 @@ def update_new_link():
     get_new_link_vn(article_url_new)
     get_new_link_en(file_new_gct_vn)
     add_link_to_csv(file_new_gct_en, file_new_gct_vn)
+
+    get_new_link_vn(article_url_ddbl)
+    get_new_link_en(file_new_gct_vn)
+    add_link_to_csv(file_new_gct_en, file_new_gct_vn)
+
+
     text = "Update Successful"
     return text
 

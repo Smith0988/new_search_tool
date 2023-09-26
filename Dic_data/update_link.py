@@ -212,15 +212,25 @@ def add_link_to_csv(file_name_en, file_name_vn):
 
         df.to_csv(file_gct_csv, mode='a', header=False, index=False)
 
+    if len(link_en_new) == len(link_vn_new) and link_en_new and link_vn_new:
+
+        # Tạo DataFrame từ danh sách câu tiếng Anh và tiếng Việt đã tách
+        df = pd.DataFrame({'English_Link': link_en_new, 'Vietnamese_Link': link_vn_new}, index=None)
+
+        # Ghi vào file report_combined.csv mà không ghi đè dữ liệu
+
+        df.to_csv('link_eng_vn_gct_new.csv', mode='a', header=False, index=False)
+
+
     os.remove(file_new_gct_vn)
     os.remove(file_new_gct_en)
 
 
 
 
-get_new_link_vn(article_url_GCT)
-get_new_link_en(file_new_gct_vn)
-add_link_to_csv(file_new_gct_en, file_new_gct_vn)
+#get_new_link_vn(article_url_GCT)
+#get_new_link_en(file_new_gct_vn)
+#add_link_to_csv(file_new_gct_en, file_new_gct_vn)
 
 #get_new_link_vn(article_url_tdth)
 #get_new_link_en(file_new_gct_vn)

@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Đọc tệp CSV vào một DataFrame
-df = pd.read_csv('link_eng_vn_gct.csv', header=None)
+df = pd.read_csv('link_eng_vn_gct_new.csv', header=None)
 
 # Lọc các hàng mà phần tử ở cột thứ nhất (index 0) chứa từ "By"
 #filtered_df = df[df.iloc[:, 0].str.contains('By', case=False, na=False)]

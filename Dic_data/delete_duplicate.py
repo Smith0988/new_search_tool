@@ -1,7 +1,7 @@
 import csv
 
 # Tên tệp CSV đầu vào
-input_file = 'dic_eng_vn_data.csv'
+input_file = 'dic_eng_vn_data_new.csv'
 
 # Tạo hai tên tệp CSV đầu ra cho các hàng bị trùng nhau và các giá trị duy nhất
 duplicate_file = 'duplicate_rows.csv'

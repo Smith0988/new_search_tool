@@ -9,7 +9,7 @@ import os
 
 
 # Đường dẫn link bài báo
-article_url_GCT = "https://vn.minghui.org/news/category/cuoc-buc-hai-o-trung-quoc"
+article_url_GCT = "https://vn.minghui.org/news/category/binhluan/page/2"
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -212,7 +212,6 @@ def add_link_to_csv(file_name_en, file_name_vn):
     os.remove(file_new_gct_en)
 
 
-get_new_link_vn(article_url_GCT)
-# get_new_link_vn(article_url_GCT)
-get_new_link_en(file_new_gct_vn)
-add_link_to_csv(file_new_gct_en, file_new_gct_vn)
+#get_new_link_vn(article_url_GCT)
+#get_new_link_en(file_new_gct_vn)
+#dd_link_to_csv(file_new_gct_en, file_new_gct_vn)
