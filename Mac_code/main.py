@@ -213,6 +213,25 @@ def display_result(result_text):
     result_textbox.configure(font=custom_font)
     result_textbox.insert(tk.END, result_text)
 
+def search_text_result():
+    search_text = input_text.get()  # Lấy nội dung tìm kiếm từ trường văn bản đầu vào
+    result_textbox.tag_remove("highlight", "1.0", tk.END)  # Xóa tất cả tag "highlight" hiện tại
+
+    start = "1.0"
+    while True:
+        start = result_textbox.search(search_text, start, tk.END)
+        if not start:
+            break
+        end = f"{start}+{len(search_text)}c"
+        result_textbox.tag_add("highlight", start, end)
+        start = end
+
+    if not result_textbox.tag_ranges("highlight"):
+        # Không tìm thấy kết quả
+        messagebox.showinfo("Thông báo", "Không tìm thấy kết quả tìm kiếm.")
+
+
+
 
 root = tk.Tk()
 window_width = 1300
@@ -301,6 +320,10 @@ find_all_var = tk.IntVar()
 find_all_checkbox = tk.Checkbutton(root, text="All Link", width=10, height=1, variable=find_all_var, font=button_font, bg="white", fg="black")
 find_all_checkbox.grid(row=2, column=0, padx=(380, 0), pady=0, sticky='w')
 
+search_button = tk.Button(root, text="Search Text Result", width=20, height=1, command=search_text_result, font=button_font, bg="white", fg="black")
+search_button.grid(row=2, column=0, padx=(550, 0), pady=0, sticky='w')
+
+
 
 # Tạo Text widget với wrap="word" để tự động xuống dòng khi cần
 result_textbox = tk.Text(root, height=18, width=100, wrap="word")
@@ -312,6 +335,8 @@ scrollbar.grid(row=3, column=0, padx=(1130, 0), pady=10, sticky="ns")
 
 result_textbox.config(yscrollcommand=scrollbar.set)
 
+
+result_textbox.tag_configure("highlight", font=font.Font(weight="bold"))
 
 title_font = font.Font(family="Helvetica", size=20, weight="bold")  # Điều chỉnh family, size, và weight theo mong muốn
 root.title("SEARCHING TOOL")

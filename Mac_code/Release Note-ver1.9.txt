@@ -1,3 +1,9 @@
+Ver .9 
+ - Search text trong ô kết quả
+   + Paste đoạn text cần search vào ô search box
+   + Chọn button "Search Text Result" => in đậm kết quả cần tìm kiếm
+
+
 Ver1.8
  - Update link diễn đàn bình luận
  - Update data mới cho Dic
