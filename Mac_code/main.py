@@ -52,6 +52,7 @@ def search_related_article_link(english_link):
     return result_text_final
 
 def update_new_link():
+
     get_new_link_vn(article_url_GCT)
     get_new_link_en(file_new_gct_vn)
     add_link_to_csv(file_new_gct_en, file_new_gct_vn)
@@ -65,6 +66,10 @@ def update_new_link():
     add_link_to_csv(file_new_gct_en, file_new_gct_vn)
 
     get_new_link_vn(article_url_ddbl)
+    get_new_link_en(file_new_gct_vn)
+    add_link_to_csv(file_new_gct_en, file_new_gct_vn)
+
+    get_new_link_vn(article_url_tguh)
     get_new_link_en(file_new_gct_vn)
     add_link_to_csv(file_new_gct_en, file_new_gct_vn)
 

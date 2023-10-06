@@ -34,6 +34,7 @@ article_url_GCT = "https://vn.minghui.org/news/category/cuoc-buc-hai-o-trung-quo
 article_url_tdth = "https://vn.minghui.org/news/category/tam-dac-the-hoi"
 article_url_new = "https://vn.minghui.org/news/category/tintuc"
 article_url_ddbl = "https://vn.minghui.org/news/category/binhluan"
+article_url_tguh = "https://vn.minghui.org/news/category/the-gioi-ung-ho"
 
 def read_column_from_csv(file_name, column_index):
     df = pd.read_csv(file_name, header=None)
@@ -228,5 +229,13 @@ def add_link_to_csv(file_name_en, file_name_vn):
 #add_link_to_csv(file_new_gct_en, file_new_gct_vn)
 
 #get_new_link_vn(article_url_new)
+#get_new_link_en(file_new_gct_vn)
+#add_link_to_csv(file_new_gct_en, file_new_gct_vn)
+
+#get_new_link_vn(article_url_ddbl)
+#get_new_link_en(file_new_gct_vn)
+#add_link_to_csv(file_new_gct_en, file_new_gct_vn)
+
+#get_new_link_vn(article_url_tguh)
 #get_new_link_en(file_new_gct_vn)
 #add_link_to_csv(file_new_gct_en, file_new_gct_vn)

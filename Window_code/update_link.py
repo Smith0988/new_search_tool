@@ -28,6 +28,7 @@ file_txt = resource_path("data\gct_vn_new.txt")
 file_csv = resource_path("data\link_eng_vn_gct.csv")
 
 
+
 def read_column_from_csv(file_name, column_index):
     df = pd.read_csv(file_name, header=None)
     column_data = df.iloc[:, column_index]
