@@ -586,11 +586,11 @@ def find_sentence(english_sentence):
 #text_execute(english_sentence)
 
 # Đường dẫn đến bài báo
-# url = "https://en.minghui.org/html/articles/2023/7/15/210315.html"
+url = "https://en.minghui.org/html/articles/2023/7/15/210315.html"
 
 # file_test = "my_document.docx"
 
 # write_related_link_to_doc(file_test, url)
-# write_en_article_to_doc(url)
+write_en_article_to_doc(url)
 # read_paragraph_in_word(title_name ,url)
 # print(get_en_article_title(url))

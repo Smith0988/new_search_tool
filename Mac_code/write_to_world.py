@@ -178,7 +178,7 @@ def find_vietnamese_sentence(english_sentence):
         else:
             return []
     except Exception as e:
-        print(f"Đã xảy ra lỗi: {str(e)}")
+        print(f"Đã xảy ra lỗi 1: {str(e)}")
         return e
 
 def get_vn_article_title(url):
@@ -337,10 +337,10 @@ def paragraph_execute_text(english_paragragh):
     for english_sentence in english_sentence_list:
         vietnamese_sentence = find_vietnamese_sentence(english_sentence)
         if vietnamese_sentence:
-            vietnamese_sentence_list = vietnamese_sentence_list + " " + vietnamese_sentence
+            vietnamese_sentence_list = vietnamese_sentence_list + " " + str(vietnamese_sentence)
         else:
-            #vietnamese_sentence_list = vietnamese_sentence_list + " " + english_sentence
-            vietnamese_sentence_list = vietnamese_sentence_list + " " + translate_with_google_translate(english_sentence)
+            vietnamese_sentence_list = vietnamese_sentence_list + " " + english_sentence
+            #vietnamese_sentence_list = vietnamese_sentence_list + " " + translate_with_google_translate(english_sentence)
     vietnamese_sentence_list = vietnamese_sentence_list.strip()
 
     return vietnamese_sentence_list
