@@ -26,6 +26,7 @@ def resource_path(relative_path):
 csv_filename = resource_path("data\link_eng_vn_gct.csv")
 csv_filename_dic = resource_path("data\dic_eng_vn_data.csv")
 kv_data = resource_path("data\KV_data.csv")
+HN_data = resource_path("data\HN_data.txt")
 
 
 def find_vietnamese_link_1(english_link):
@@ -415,12 +416,38 @@ def find_sentence(english_sentence):
         print(f"Đã xảy ra lỗi: {str(e)}")
         return e
 
-# Đường dẫn đến bài báo
-# url = "https://en.minghui.org/html/articles/2023/7/15/210315.html"
 
-# file_test = "my_document.docx"
+def search_sentences_in_file(file_path, sentence):
+    # Đọc nội dung từ file và gán thành một danh sách (list)
+    with open(file_path, 'r', encoding='utf-8') as file:
+        file_data_list = file.read().splitlines()
 
-# write_related_link_to_doc(file_test, url)
-# write_en_article_to_doc(url)
-# read_paragraph_in_word(title_name ,url)
-# print(get_en_article_title(url))
+    results = []  # Một từ điển để lưu kết quả tìm kiếm
+    check_point = False
+    # Duyệt qua danh sách các dòng từ file
+    for index in range(len(file_data_list)):
+        line = file_data_list[index]
+        if sentence in line:
+            check_point = True
+        if not check_point and ("vi.falundafa.org" in line or "vn.minghui.org" in line):
+            first_index = index
+        if check_point and ("vi.falundafa.org" in line or "vn.minghui.org" in line):
+            last_index = index
+            break
+
+    for i in range(first_index + 1, last_index + 1):
+        results.append(file_data_list[i])
+
+    if results:
+        results
+        return results
+    else:
+        return "Can not found"
+
+# Ví dụ sử dụng function
+file_path = HN_data
+sentences = "The vast, boundless heaven and earth look small to me,"
+search_result = search_sentences_in_file(file_path, sentences)
+
+print(search_result)
+

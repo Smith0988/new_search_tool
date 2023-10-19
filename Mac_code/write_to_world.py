@@ -27,6 +27,7 @@ def resource_path(relative_path):
 csv_filename = resource_path("data\link_eng_vn_gct.csv")
 csv_filename_dic = resource_path("data\dic_eng_vn_data.csv")
 kv_data = resource_path("data\KV_data.csv")
+HN_data = resource_path("data\HN_data.txt")
 
 
 def find_vietnamese_link_1(english_link):
