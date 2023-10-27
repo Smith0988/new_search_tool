@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import spacy
 import re
+from update_link import *
 
 nltk.download('punkt')  # Download data for sentence tokenizer
 from nltk.tokenize import sent_tokenize
@@ -652,8 +653,11 @@ def write_title():
     write_number_to_file(index_file_name, index + a)
 
 
+#get_new_link_vn(article_url_GCT)
+#get_new_link_en(file_new_gct_vn)
+#add_link_to_csv(file_new_gct_en, file_new_gct_vn)
 
 #write_to_csv()
 #write_line()
 #write_title()
-write_addition()
+#write_addition()
